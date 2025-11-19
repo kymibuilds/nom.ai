@@ -1,30 +1,54 @@
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { UserButton } from '@clerk/nextjs'
-import React from 'react'
-import AppSidebar from './app-sidebar'
+"use client";
+
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { UserButton } from "@clerk/nextjs";
+import AppSidebar from "./app-sidebar";
+import React from "react";
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 const SidebarLayout = ({ children }: Props) => {
   return (
     <SidebarProvider>
+      <div className="flex h-screen w-full">
+        {/* Sidebar */}
         <AppSidebar />
-      <main className="w-full m-2">
-        <div className="flex items-center gap-2 border-sidebar-border bg-sidebar border shadow rounded-md p-2 px-4">
-          <div className="ml-auto"></div>
-          <UserButton />
-        </div>
 
-        <div className="h-4"></div>
+        {/* Main area */}
+        <main className="flex flex-col flex-1 m-4 gap-4">
+          {/* Top header bar */}
+          <header
+            className="
+              h-12
+              flex items-center justify-end
+              bg-background
+              border border-sidebar-border
+              rounded-sm
+              px-4
+            "
+          >
+            <UserButton />
+          </header>
 
-        <div className="border-sidebar-border bg-sidebar border shadow rounded-md overflow-y-auto h-[calc(100vh-6rem)] p-4">
-          {children}
-        </div>
-      </main>
+          {/* Content area */}
+          <section
+            className="
+              flex-1
+              overflow-y-auto
+              bg-background
+              border border-sidebar-border
+              rounded-sm
+              p-4
+            "
+          >
+            {children}
+          </section>
+        </main>
+      </div>
     </SidebarProvider>
-  )
-}
+  );
+};
 
-export default SidebarLayout
+export default SidebarLayout;

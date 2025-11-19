@@ -22,10 +22,9 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -35,60 +34,72 @@ const items = [
 ];
 
 const projects = [
-  { name: "project 1" },
-  { name: "project 2" },
-  { name: "project 3" },
+  { name: "project-1" },
+  { name: "project-2" },
+  { name: "project-3" },
 ];
 
 function AppSidebar() {
-  const pathName = usePathname();
+  const pathname = usePathname();
   const { open } = useSidebar();
   const router = useRouter();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader>
-        <div className="flex items-center justify-between pr-2">
-          <span>Logo</span>
+      {/* HEADER */}
+      <SidebarHeader className="px-3">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-lg">Qode</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      {/* CONTENT */}
+      <SidebarContent className="mt-2">
+        {/* TOP SECTION */}
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3">
+            Application
+          </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            {items.map((item) => {
-              const Icon = item.icon;
-              const active = pathName === item.url;
+            <SidebarMenu className="space-y-0.5">
+              {items.map((item) => {
+                const Icon = item.icon;
+                const active = pathname === item.url;
 
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={item.url}
-                      className={cn(
-                        "flex items-center gap-2 px-2 py-1.5 rounded-md",
-                        active && "bg-primary text-white"
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="truncate">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        href={item.url}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
+                          active
+                            ? "bg-accent text-foreground"
+                            : "hover:bg-accent/60"
+                        )}
+                      >
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <span className="truncate">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
+        {/* PROJECTS */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3">
+            Your Projects
+          </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1.5">
+            <SidebarMenu className="space-y-0.5">
               {projects.map((project) => {
-                const active = pathName === `/projects/${project.name}`;
+                const active = pathname === `/projects/${project.name}`;
 
                 return (
                   <SidebarMenuItem key={project.name}>
@@ -96,12 +107,15 @@ function AppSidebar() {
                       <Link
                         href={`/projects/${project.name}`}
                         className={cn(
-                          "flex items-center gap-3 px-2 py-1.5 rounded-md",
-                          active && "bg-primary text-white"
+                          "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm transition-colors",
+                          active
+                            ? "bg-accent text-foreground"
+                            : "hover:bg-accent/60"
                         )}
                       >
-                        <div className="flex h-6 w-6 items-center justify-center rounded-md border border-black/20 text-xs font-medium">
-                          {project.name[0]?.toUpperCase() ?? "P"}
+                        {/* Mini GitHub-style icon */}
+                        <div className="h-5 w-5 flex items-center justify-center rounded-md bg-muted text-[10px] font-medium">
+                          {project.name[0]?.toUpperCase() ?? ""}
                         </div>
 
                         <span className="truncate">{project.name}</span>
@@ -111,21 +125,30 @@ function AppSidebar() {
                 );
               })}
 
-              {/* Create Project Button */}
-              {
-                open ? (
-                  <SidebarMenuItem>
-                <Button
-                  className="w-full justify-start gap-2 px-2 py-1.5 shadow-none"
-                  size="sm"
-                  variant="outline"
-                  onClick={()=>router.push("/create")}>
-                  <Plus className="h-4 w-4" />
-                  Create Project
-                </Button>
-              </SidebarMenuItem>
-                ) : <SidebarMenuItem><Button><Plus/></Button></SidebarMenuItem>
-              }
+              {/* CREATE PROJECT BUTTON (GitHub style) */}
+              {open ? (
+                <SidebarMenuItem>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 px-3 py-1.5 text-sm hover:bg-accent/60"
+                    onClick={() => router.push("/create")}
+                  >
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    New Project
+                  </Button>
+                </SidebarMenuItem>
+              ) : (
+                <SidebarMenuItem>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 hover:bg-accent/60"
+                    onClick={() => router.push("/create")}
+                  >
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
