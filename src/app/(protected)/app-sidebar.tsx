@@ -25,6 +25,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import useProject from "@/hooks/use-project";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -33,23 +34,18 @@ const items = [
   { title: "Billing", url: "/billing", icon: DollarSign },
 ];
 
-const projects = [
-  { name: "project-1" },
-  { name: "project-2" },
-  { name: "project-3" },
-];
-
 function AppSidebar() {
   const pathname = usePathname();
   const { open } = useSidebar();
   const router = useRouter();
+  const { projects, projectId, setProjectId } = useProject();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
       {/* HEADER */}
       <SidebarHeader className="px-3">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-lg">Qode</span>
+          <span className="text-lg font-semibold">Qode</span>
         </div>
       </SidebarHeader>
 
@@ -57,7 +53,7 @@ function AppSidebar() {
       <SidebarContent className="mt-2">
         {/* TOP SECTION */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3">
+          <SidebarGroupLabel className="text-muted-foreground px-3 text-xs font-medium">
             Application
           </SidebarGroupLabel>
 
@@ -73,13 +69,13 @@ function AppSidebar() {
                       <Link
                         href={item.url}
                         className={cn(
-                          "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
+                          "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
                           active
                             ? "bg-accent text-foreground"
-                            : "hover:bg-accent/60"
+                            : "hover:bg-accent/60",
                         )}
                       >
-                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <Icon className="text-muted-foreground h-4 w-4" />
                         <span className="truncate">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -92,48 +88,54 @@ function AppSidebar() {
 
         {/* PROJECTS */}
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3">
+          <SidebarGroupLabel className="text-muted-foreground px-3 text-xs font-medium">
             Your Projects
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
-              {projects.map((project) => {
-                const active = pathname === `/projects/${project.name}`;
+              {(projects ?? []).map((project) => {
+                const active = projectId === project.id;
 
                 return (
-                  <SidebarMenuItem key={project.name}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={`/projects/${project.name}`}
+                  <SidebarMenuItem
+                    key={project.id}
+                    onClick={() => setProjectId(project.id)}
+                  >
+                    <SidebarMenuButton
+                      className={cn(
+                        "flex items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors",
+                        active
+                          ? "bg-accent text-foreground"
+                          : "hover:bg-accent/60",
+                      )}
+                    >
+                      {/* Badge */}
+                      <div
                         className={cn(
-                          "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm transition-colors",
+                          "flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-medium",
                           active
-                            ? "bg-accent text-foreground"
-                            : "hover:bg-accent/60"
+                            ? "bg-blue-500 text-white"
+                            : "bg-muted text-foreground",
                         )}
                       >
-                        {/* Mini GitHub-style icon */}
-                        <div className="h-5 w-5 flex items-center justify-center rounded-md bg-muted text-[10px] font-medium">
-                          {project.name[0]?.toUpperCase() ?? ""}
-                        </div>
+                        {project.name?.[0]?.toUpperCase() ?? ""}
+                      </div>
 
-                        <span className="truncate">{project.name}</span>
-                      </Link>
+                      <span className="truncate">{project.name}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
               })}
 
-              {/* CREATE PROJECT BUTTON (GitHub style) */}
               {open ? (
                 <SidebarMenuItem>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start gap-2 px-3 py-1.5 text-sm hover:bg-accent/60"
+                    className="hover:bg-accent/60 w-full justify-start gap-2 px-3 py-1.5 text-sm"
                     onClick={() => router.push("/create")}
                   >
-                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Plus className="text-muted-foreground h-4 w-4" />
                     New Project
                   </Button>
                 </SidebarMenuItem>
@@ -142,10 +144,10 @@ function AppSidebar() {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 hover:bg-accent/60"
+                    className="hover:bg-accent/60 h-8 w-8"
                     onClick={() => router.push("/create")}
                   >
-                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Plus className="text-muted-foreground h-4 w-4" />
                   </Button>
                 </SidebarMenuItem>
               )}
