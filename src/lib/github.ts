@@ -30,23 +30,13 @@ export const getCommitHashes = async (
     repo,
   });
 
-  console.log("Raw GitHub commit count:", data.length);
-
   const sortedCommits = [...data].sort((a, b) => {
     const dateA = new Date(a.commit.author?.date ?? "").getTime();
     const dateB = new Date(b.commit.author?.date ?? "").getTime();
     return dateB - dateA;
   });
 
-  console.log("Sorted commits:", sortedCommits.length);
-
-  const mapped = sortedCommits.slice(0, 15).map((commit, i) => {
-    console.log(`Commit #${i + 1}:`, {
-      sha: commit.sha,
-      message: commit.commit.message,
-      author: commit.commit.author?.name,
-    });
-
+  const mapped = sortedCommits.slice(0, 15).map((commit) => {
     return {
       commitHash: commit.sha,
       commitMessage: commit.commit.message,
@@ -56,7 +46,6 @@ export const getCommitHashes = async (
     };
   });
 
-  console.log("Mapped commit objects:", mapped.length);
   return mapped;
 };
 
@@ -79,7 +68,6 @@ export const pollCommits = async (projectId: string) => {
 
   const commits = await db.commit.createMany({
     data: summaryResponses.map((summary, index) => {
-      console.log(`processing commit ${index}`);
       return {
         projectId,
         commitHash: unprocessedCommits[index]!.commitHash,
@@ -97,7 +85,6 @@ export const pollCommits = async (projectId: string) => {
 
 async function summariseCommit(githubUrl: string, commitHash: string) {
   try {
-    
     const [owner, repo] = githubUrl.split("/").slice(-2);
 
     if (!owner || !repo) {
@@ -116,15 +103,7 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
     );
 
     const diff = res.data as unknown as string;
-    console.log(res.headers["content-type"]);
-
-    console.log(`✅ Fetched diff for commit ${commitHash.substring(0, 7)}`);
-
     const output = await aiSummarizeCommit(diff);
-
-    console.log(
-      `✅ Generated summary for commit ${commitHash.substring(0, 7)}`,
-    );
 
     return output ?? "";
   } catch (err) {
@@ -134,7 +113,6 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
 }
 
 async function fetchProjectGithubUrl(projectId: string): Promise<string> {
-  console.log("Fetching GitHub URL for project:", projectId);
 
   const project = await db.project.findUnique({
     where: { id: projectId },
@@ -152,7 +130,6 @@ async function filterUnprocessedCommits(
   projectId: string,
   commitHashes: Response[],
 ): Promise<Response[]> {
-  console.log("Filtering unprocessed commits for project:", projectId);
 
   const processedCommits = await db.commit.findMany({
     where: { projectId },

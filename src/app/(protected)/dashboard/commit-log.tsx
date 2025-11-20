@@ -11,29 +11,34 @@ import React from "react";
 function CommitLog() {
   const { projectId, project } = useProject();
   const { data: commits } = api.project.getCommits.useQuery({ projectId });
+
   return (
     <>
       <ul className="space-y-6">
         {commits?.map((commit, commitIndex) => {
           return (
             <li key={commit.id} className="relative flex gap-x-4">
+              {/* Vertical Strip (Container width set to w-10 to center the line under the 40px avatar) */}
               <div
                 className={cn(
                   commitIndex === commits.length - 1 ? "h-6" : "-bottom-6",
-                  "absolute top-0 left-0 flex w-6 justify-center",
+                  "absolute top-0 left-0 flex w-10 justify-center", // w-10 centers the line for the 40px avatar
                 )}
               >
-                <div className="w-px translate-x-1 bg-gray-200"></div>
+                {/* The vertical strip */}
+                <div className="w-px bg-gray-200"></div>
               </div>
 
-              {/* Avatar */}
-              <div className="mt-1.5 flex-none">
+              {/* Avatar (Directly using w-10 h-10 and 40px props) */}
+              <div className="relative z-10 mt-0.5 flex-none w-10 h-10">
                 <Image
                   src={commit.commitAuthorAvatar}
                   alt="author avatar"
-                  width={24}
-                  height={24}
-                  className="h-6 w-6 rounded-full bg-white ring-1 ring-gray-200"
+                  // Next.js Image component width/height props set to 40
+                  width={40} 
+                  height={40}
+                  // Apply the 40px size class to the rendered image element
+                  className="w-10 h-10 rounded-full bg-white ring-2 ring-white border-2 border-gray-200"
                 />
               </div>
 
