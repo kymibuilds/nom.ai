@@ -13,7 +13,7 @@ function DashboardPage() {
       {project?.id}
       <div className="flex flex-wrap items-center justify-between gap-y-4">
         {/* github link */}
-        <div className="bg-primary w-fit rounded-md px-4 py-3 flex items-center gap-2">
+        <div className="bg-primary w-fit rounded-md px-4 py-1.5 flex items-center gap-2">
           <Github className="size-5 text-white" />
           <p className="text-sm font-medium text-white">
             This project is linked to{" "}

@@ -41,7 +41,7 @@ function AppSidebar() {
   const { projects, projectId, setProjectId } = useProject();
 
   return (
-    <Sidebar collapsible="icon" variant="floating">
+    <Sidebar collapsible="icon" variant="sidebar">
       {/* HEADER */}
       <SidebarHeader className="px-3">
         <div className="flex items-center gap-2">
