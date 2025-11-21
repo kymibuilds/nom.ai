@@ -5,6 +5,26 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+// Helper to add delays between requests
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Track request timing to stay under rate limits
+let lastRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 7000; // 7 seconds between requests (60s / 10 requests = 6s, +1s buffer)
+
+async function waitForRateLimit() {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  
+  if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+    const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+    console.log(`⏳ Waiting ${Math.round(waitTime / 1000)}s for rate limit...`);
+    await delay(waitTime);
+  }
+  
+  lastRequestTime = Date.now();
+}
+
 export async function aiSummarizeCommit(diff: string) {
   const prompt = `You are an expert programmer, and you are trying to summarize a git diff.
 Reminders about the git diff format:
@@ -38,6 +58,8 @@ Summarize the following diff:
 ${diff}`;
 
   try {
+    await waitForRateLimit();
+    
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [{ text: prompt }],
@@ -48,6 +70,13 @@ ${diff}`;
     return text;
   } catch (error) {
     console.error("Gemini API error:", error);
+    
+    // If rate limited, wait the suggested retry time
+    if (error?.status === 429) {
+      console.log("⚠️ Rate limited, waiting 60 seconds...");
+      await delay(60000);
+    }
+    
     return "";
   }
 }
@@ -69,24 +98,74 @@ ${code}
 Give a summary no more than 100 words of the code above.
   `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [{ text: prompt }],
-  });
+  try {
+    await waitForRateLimit();
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ text: prompt }],
+    });
 
-  const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  return text;
+    const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    return text;
+  } catch (error) {
+    console.error("Gemini API error for", doc.metadata.source, ":", error);
+    
+    if (error?.status === 429) {
+      console.log("⚠️ Rate limited, waiting 60 seconds...");
+      await delay(60000);
+      // Retry once after waiting
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [{ text: prompt }],
+        });
+        return response.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      } catch (retryError) {
+        console.error("Retry failed:", retryError);
+        return "";
+      }
+    }
+    
+    return "";
+  }
 }
 
-export async function generateEmbeddings(summary: string) {
-  const result = await ai.models.embedContent({
-    model: "text-embedding-004",
-    contents: [{ text: summary }],
-  });
+export async function generateEmbedding(summary: string) {
+  if (!summary) {
+    console.log("⚠️ Empty summary, skipping embedding generation");
+    return undefined;
+  }
+  
+  try {
+    await waitForRateLimit();
+    
+    const result = await ai.models.embedContent({
+      model: "text-embedding-004",
+      contents: [{ text: summary }],
+    });
 
-  // Use the first embedding
-  const embedding = result.embeddings?.[0];
-  return embedding?.values;
+    const embedding = result.embeddings?.[0];
+    return embedding?.values;
+  } catch (error) {
+    console.error("Embedding API error:", error);
+    
+    if (error?.status === 429) {
+      console.log("⚠️ Rate limited on embedding, waiting 60 seconds...");
+      await delay(60000);
+      // Retry once
+      try {
+        const result = await ai.models.embedContent({
+          model: "text-embedding-004",
+          contents: [{ text: summary }],
+        });
+        return result.embeddings?.[0]?.values;
+      } catch (retryError) {
+        console.error("Embedding retry failed:", retryError);
+        return undefined;
+      }
+    }
+    
+    return undefined;
+  }
 }
-
-console.log(await generateEmbeddings("hello world"))
