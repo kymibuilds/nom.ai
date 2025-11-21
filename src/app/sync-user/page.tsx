@@ -18,7 +18,6 @@ const SyncUser = async () => {
 
   const emailAddress = user.emailAddresses[0].emailAddress;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   await db.user.upsert({
     where: {
       emailAddress
