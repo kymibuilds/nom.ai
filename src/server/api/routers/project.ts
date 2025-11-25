@@ -1,15 +1,23 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { pollCommits, octokit } from "@/lib/github";
+import { pollCommits } from "@/lib/github";
 import { indexGithubRepo } from "@/lib/github-loader";
 import { aiSummarizeCommit } from "@/lib/gemini";
+import { Octokit } from "octokit";
+import { parseGitHubUrl } from "@/lib/github";
+
+function getClient(token?: string) {
+  return new Octokit({
+    auth: token ?? process.env.GITHUB_TOKEN,
+  });
+}
 
 export const projectRouter = createTRPCRouter({
 
   createProject: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1, "Project name is required"),
+        name: z.string().min(1),
         githubUrl: z.string(),
         githubToken: z.string().optional(),
       }),
@@ -25,10 +33,7 @@ export const projectRouter = createTRPCRouter({
         },
       });
 
-      // Run initial commit indexing ONCE
-      await pollCommits(project.id);
-
-      // Run source code indexing ONCE
+      await pollCommits(project.id, input.githubToken);
       await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
 
       return project;
@@ -38,9 +43,7 @@ export const projectRouter = createTRPCRouter({
     return ctx.db.project.findMany({
       where: {
         deletedAt: null,
-        userToProjects: {
-          some: { userId: ctx.user.userId },
-        },
+        userToProjects: { some: { userId: ctx.user.userId } },
       },
     });
   }),
@@ -48,9 +51,6 @@ export const projectRouter = createTRPCRouter({
   getCommits: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
-      // Important fix: DO NOT CALL pollCommits HERE ANYMORE
-      // It caused repeated endless polling & API spam.
-
       return ctx.db.commit.findMany({
         where: { projectId: input.projectId },
         orderBy: { commitDate: "desc" },
@@ -67,33 +67,25 @@ export const projectRouter = createTRPCRouter({
 
       if (!commit) throw new Error("Commit not found");
 
-      const githubUrl = commit.project.githubUrl;
-      const parts = githubUrl.split("/").filter(Boolean);
-      const owner = parts[parts.length - 2];
-      const repo = parts[parts.length - 1];
+      const { owner, repo } = parseGitHubUrl(commit.project.githubUrl);
+      const client = getClient();
 
-      if (!owner || !repo) throw new Error("Invalid GitHub URL");
-
-      const res = await octokit.request(
+      const res = await client.request(
         "GET /repos/{owner}/{repo}/commits/{ref}",
         {
           owner,
           repo,
           ref: commit.commitHash,
           headers: { Accept: "application/vnd.github.v3.diff" },
-        },
+        }
       );
 
       const diff = res.data as unknown as string;
-      const newSummary = await aiSummarizeCommit(diff);
-
-      if (!newSummary) {
-        throw new Error("Failed to regenerate summary. Try later.");
-      }
+      const summary = await aiSummarizeCommit(diff);
 
       return ctx.db.commit.update({
         where: { id: input.commitId },
-        data: { summary: newSummary },
+        data: { summary },
       });
     }),
 });
