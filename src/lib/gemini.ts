@@ -5,9 +5,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-// ----------------------------------------------------
-// Commit summarization
-// ----------------------------------------------------
 export async function aiSummarizeCommit(diff: string) {
   const prompt = `You are an expert programmer summarizing a git diff.
 
@@ -22,7 +19,7 @@ ${diff}
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",   // FIXED MODEL
       contents: [{ text: prompt }],
     });
 
@@ -33,9 +30,6 @@ ${diff}
   }
 }
 
-// ----------------------------------------------------
-// Code summarization
-// ----------------------------------------------------
 export async function summariseCode(doc: Document) {
   const code = doc.pageContent.slice(0, 10000);
 
@@ -52,7 +46,7 @@ Provide a summary in no more than 100 words.
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",     // PRIMARY
       contents: [{ text: prompt }],
     });
 
@@ -60,10 +54,10 @@ Provide a summary in no more than 100 words.
   } catch (error) {
     console.error("Gemini API error for", doc.metadata.source, ":", error);
 
-    // retry once
+    // Retry with a lighter valid model
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash-lite",   // RETRY MODEL (valid)
         contents: [{ text: prompt }],
       });
 
@@ -80,13 +74,11 @@ export async function generateEmbedding(summary: string) {
 
   try {
     const result = await ai.models.embedContent({
-      model: "text-embedding-004",
+      model: "text-embedding-004",    // VALID MODEL
       contents: [{ text: summary }],
     });
 
-    const embedding = result.embeddings?.[0]?.values;
-
-    return embedding;
+    return result.embeddings?.[0]?.values;
   } catch (error) {
     console.error("Embedding API error:", error);
     return undefined;

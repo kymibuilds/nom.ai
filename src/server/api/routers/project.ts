@@ -5,6 +5,7 @@ import { indexGithubRepo } from "@/lib/github-loader";
 import { aiSummarizeCommit } from "@/lib/gemini";
 
 export const projectRouter = createTRPCRouter({
+
   createProject: protectedProcedure
     .input(
       z.object({
@@ -19,15 +20,15 @@ export const projectRouter = createTRPCRouter({
           name: input.name,
           githubUrl: input.githubUrl,
           userToProjects: {
-            create: {
-              userId: ctx.user.userId,
-            },
+            create: { userId: ctx.user.userId },
           },
         },
       });
 
-      // Initial polling + indexing
+      // Run initial commit indexing ONCE
       await pollCommits(project.id);
+
+      // Run source code indexing ONCE
       await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
 
       return project;
@@ -38,59 +39,41 @@ export const projectRouter = createTRPCRouter({
       where: {
         deletedAt: null,
         userToProjects: {
-          some: {
-            userId: ctx.user.userId,
-          },
+          some: { userId: ctx.user.userId },
         },
       },
     });
   }),
 
   getCommits: protectedProcedure
-    .input(
-      z.object({
-        projectId: z.string(),
-      }),
-    )
+    .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input }) => {
-      pollCommits(input.projectId).catch(console.error);
+      // Important fix: DO NOT CALL pollCommits HERE ANYMORE
+      // It caused repeated endless polling & API spam.
 
       return ctx.db.commit.findMany({
         where: { projectId: input.projectId },
+        orderBy: { commitDate: "desc" },
       });
     }),
 
   regenerateCommitSummary: protectedProcedure
-    .input(
-      z.object({
-        commitId: z.string(),
-      }),
-    )
+    .input(z.object({ commitId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const { commitId } = input;
-
-      // Fetch commit + project
       const commit = await ctx.db.commit.findUnique({
-        where: { id: commitId },
+        where: { id: input.commitId },
         include: { project: true },
       });
 
-      if (!commit) {
-        throw new Error("Commit not found");
-      }
+      if (!commit) throw new Error("Commit not found");
 
       const githubUrl = commit.project.githubUrl;
-
-      // Safe parse owner/repo
       const parts = githubUrl.split("/").filter(Boolean);
       const owner = parts[parts.length - 2];
       const repo = parts[parts.length - 1];
 
-      if (!owner || !repo) {
-        throw new Error("Invalid GitHub URL");
-      }
+      if (!owner || !repo) throw new Error("Invalid GitHub URL");
 
-      // Fetch the actual diff from GitHub
       const res = await octokit.request(
         "GET /repos/{owner}/{repo}/commits/{ref}",
         {
@@ -102,20 +85,15 @@ export const projectRouter = createTRPCRouter({
       );
 
       const diff = res.data as unknown as string;
-
-      // Regenerate summary using AI
       const newSummary = await aiSummarizeCommit(diff);
 
       if (!newSummary) {
-        throw new Error("Failed to regenerate summary. Please try again later.");
+        throw new Error("Failed to regenerate summary. Try later.");
       }
 
-      // Update DB
-      const updatedCommit = await ctx.db.commit.update({
-        where: { id: commitId },
+      return ctx.db.commit.update({
+        where: { id: input.commitId },
         data: { summary: newSummary },
       });
-
-      return updatedCommit;
     }),
 });

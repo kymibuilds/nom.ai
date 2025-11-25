@@ -59,13 +59,13 @@ export const pollCommits = async (projectId: string) => {
     commitHashes,
   );
 
-  // Summaries ALWAYS return a string now
   const summaryResponses = await Promise.all(
     unprocessedCommits.map((commit) =>
       summariseCommit(githubUrl, commit.commitHash),
     ),
   );
 
+  // FIX: Added skipDuplicates: true
   const commits = await db.commit.createMany({
     data: summaryResponses.map((summary, index) => {
       return {
@@ -75,9 +75,11 @@ export const pollCommits = async (projectId: string) => {
         commitAuthorName: unprocessedCommits[index]!.commitAuthorName,
         commitAuthorAvatar: unprocessedCommits[index]!.commitAuthorAvatar,
         commitDate: new Date(unprocessedCommits[index]!.commitDate),
-        summary, // ALWAYS string now
+        summary,
       };
     }),
+
+    skipDuplicates: true, // important
   });
 
   return commits;
@@ -91,7 +93,6 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
       throw new Error("Invalid GitHub URL");
     }
 
-    // Correct GitHub diff request
     const res = await octokit.request(
       "GET /repos/{owner}/{repo}/commits/{ref}",
       {
@@ -99,7 +100,7 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
         repo,
         ref: commitHash,
         headers: { Accept: "application/vnd.github.v3.diff" },
-      },
+      }
     );
 
     const diff = res.data as unknown as string;
@@ -113,7 +114,6 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
 }
 
 async function fetchProjectGithubUrl(projectId: string): Promise<string> {
-
   const project = await db.project.findUnique({
     where: { id: projectId },
     select: { githubUrl: true },
@@ -130,7 +130,6 @@ async function filterUnprocessedCommits(
   projectId: string,
   commitHashes: Response[],
 ): Promise<Response[]> {
-
   const processedCommits = await db.commit.findMany({
     where: { projectId },
     select: { commitHash: true },

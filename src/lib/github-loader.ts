@@ -3,16 +3,13 @@ import type { Document } from "@langchain/core/documents";
 import { generateEmbedding, summariseCode } from "./gemini";
 import { db } from "@/server/db";
 
-// --------------------------------------------------
-// Load GitHub repository
-// --------------------------------------------------
 export const loadGitubRepo = async (
   githubUrl: string,
   githubToken?: string,
 ) => {
   const loader = new GithubRepoLoader(githubUrl, {
     accessToken: githubToken ?? "",
-    branch: "master",
+    branch: "main",
     ignoreFiles: [
       "package-lock.json",
       "yarn.lock",
@@ -27,9 +24,6 @@ export const loadGitubRepo = async (
   return loader.load();
 };
 
-// --------------------------------------------------
-// Index GitHub repo → summarize → embed → store
-// --------------------------------------------------
 export const indexGithubRepo = async (
   projectId: string,
   githubUrl: string,
@@ -58,7 +52,6 @@ export const indexGithubRepo = async (
         },
       });
 
-      // Insert pgvector embedding (correct bracket syntax)
       await db.$executeRawUnsafe(`
         UPDATE "SourceCodeEmbedding"
         SET "summaryEmbedding" = '[${item.embedding.join(",")}]'::vector
@@ -68,9 +61,6 @@ export const indexGithubRepo = async (
   );
 };
 
-// --------------------------------------------------
-// Generate all summaries + embeddings
-// --------------------------------------------------
 const generateEmbeddings = async (docs: Document[]) => {
   return Promise.all(
     docs.map(async (doc) => {
