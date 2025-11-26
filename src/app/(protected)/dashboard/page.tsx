@@ -4,13 +4,13 @@ import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import CommitLog from "./commit-log";
+import AskQuestionCard from "./ask-question-card";
 
 function DashboardPage() {
   const { project } = useProject();
 
   return (
     <div>
-      {project?.id}
       <div className="flex flex-wrap items-center justify-between gap-y-4">
         {/* github link */}
         <div className="bg-primary w-fit rounded-md px-4 py-1.5 flex items-center gap-2">
@@ -36,7 +36,7 @@ function DashboardPage() {
 
       <div className="mt-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
-          AskQuestionCard
+          <AskQuestionCard />
           MeetingCard
         </div>
       </div>
