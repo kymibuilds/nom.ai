@@ -19,7 +19,7 @@ export const projectRouter = createTRPCRouter({
         name: z.string().min(1),
         githubUrl: z.string(),
         githubToken: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const project = await ctx.db.project.create({
@@ -76,7 +76,7 @@ export const projectRouter = createTRPCRouter({
           repo,
           ref: commit.commitHash,
           headers: { Accept: "application/vnd.github.v3.diff" },
-        }
+        },
       );
 
       const diff = res.data as unknown as string;
@@ -94,16 +94,36 @@ export const projectRouter = createTRPCRouter({
         question: z.string(),
         answer: z.string(),
         filesReferences: z.any().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.question.create({
         data: {
           projectId: input.projectId,
-          userId: ctx.user.userId,      // REQUIRED FIELD
+          userId: ctx.user.userId, // REQUIRED FIELD
           question: input.question,
           answer: input.answer,
           filesReferences: input.filesReferences ?? null,
+        },
+      });
+    }),
+  getQuestions: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.question.findMany({
+        where: {
+          projectId: input.projectId,
+          userId: ctx.user.userId,
+        },
+        include: {
+          user: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
     }),

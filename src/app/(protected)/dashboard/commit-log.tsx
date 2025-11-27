@@ -18,11 +18,11 @@ function CommitLog() {
     onMutate: ({ commitId }) => {
       setRegeneratingIds(prev => new Set(prev).add(commitId));
     },
-    onSuccess: (_, { commitId }) => {
+    onSuccess: async (_,) => {
       toast.success("Summary regenerated successfully!");
-      utils.project.getCommits.invalidate({ projectId });
+      await utils.project.getCommits.invalidate({ projectId });
     },
-    onError: (error, { commitId }) => {
+    onError: (error) => {
       toast.error(`Failed to regenerate: ${error.message}`);
     },
     onSettled: (_, __, { commitId }) => {
