@@ -13,14 +13,13 @@ function getClient(token?: string) {
 }
 
 export const projectRouter = createTRPCRouter({
-
   createProject: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
         githubUrl: z.string(),
         githubToken: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const project = await ctx.db.project.create({
@@ -86,6 +85,26 @@ export const projectRouter = createTRPCRouter({
       return ctx.db.commit.update({
         where: { id: input.commitId },
         data: { summary },
+      });
+    }),
+  saveAnswer: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        question: z.string(),
+        answer: z.string(),
+        filesReferences: z.any().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.question.create({
+        data: {
+          projectId: input.projectId,
+          userId: ctx.user.userId,      // REQUIRED FIELD
+          question: input.question,
+          answer: input.answer,
+          filesReferences: input.filesReferences ?? null,
+        },
       });
     }),
 });

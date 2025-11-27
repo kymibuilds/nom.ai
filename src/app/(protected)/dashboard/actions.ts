@@ -1,26 +1,70 @@
-"use client";
+"use server";
+
 import { streamText } from "ai";
-import { createTextStreamResponse } from "ai";
-import {createGoogleGenerativeAI} from "@ai-sdk/google";
-import useProject from "@/hooks/use-project";
-import { createStreamableValue } from "@ai-sdk/rsc"
+import { google } from "@ai-sdk/google";
 import { generateEmbedding } from "@/lib/gemini";
+import { db } from "@/server/db";
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY
-})
+export async function askQuestion(question: string, projectId: string) {
+  const embedding = await generateEmbedding(question);
+  if (!embedding) {
+    throw new Error("Failed to generate embedding for query");
+  }
 
-export async function askQuestion(question: string, projectId: string){
-  const stream = createStreamableValue();
-  
-  const queryVector = await generateEmbedding(question)
-  const vectorQuery = `[${queryVector?.join(",")}
-    ]`
-  
-  const result = await db.$querytRaw`
-      SELECT "fileName","sourceCode","summary",
-      1- ("summaryEmbedding"<=>#${vectorQuery}::vector) AS similartiy
-      FROM "SourceCodeEmbedding"
-      WHERE 1 = ("summaryEmbedding" <=>#{vectorQuery}::vector) >0.5
-    `
+  const vectorQuery = `[${embedding.join(",")}]`;
+
+  const result = await db.$queryRaw<
+    { fileName: string; sourceCode: string; summary: string; similarity: number }[]
+  >`
+    SELECT 
+      "fileName",
+      "sourceCode",
+      "summary",
+      1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
+    FROM "SourceCodeEmbedding"
+    WHERE ("summaryEmbedding" <=> ${vectorQuery}::vector) < 0.8
+      AND "projectId" = ${projectId}
+    ORDER BY similarity DESC
+    LIMIT 10
+  `;
+
+  let context = "";
+  for (const doc of result) {
+    context += `
+source: ${doc.fileName}
+code content:
+${doc.sourceCode}
+
+summary:
+${doc.summary}
+
+----------------------------
+`;
+  }
+
+  const { textStream } = streamText({
+    model: google("gemini-2.0-flash"),
+    prompt: `
+You are a code assistant that answers questions about the codebase.
+
+Use ONLY the context provided below.
+
+If the answer cannot be found in the context, say:
+"I don't know."
+
+CONTEXT START
+${context}
+CONTEXT END
+
+QUESTION:
+${question}
+
+Provide the answer in Markdown with code snippets when relevant.
+    `,
+  });
+
+  return {
+    textStream,
+    filesReferences: result,
+  };
 }
