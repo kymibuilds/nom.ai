@@ -39,7 +39,9 @@ model Project {
   userToProjects       UserToProject[]
   commits              Commit[]
   sourceCodeEmbeddings SourceCodeEmbedding[]
+
   savedQuestions Question[]
+  meetings Meeting[]
 }
 
 model UserToProject {
@@ -85,16 +87,55 @@ model Commit {
 model Question {
   id String @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  
+  updatedAt DateTime @updatedAt
+
   question String
   answer String
-  
+
   filesReferences Json?
-  
+
   projectId String
   project Project @relation(fields: [projectId], references: [id])
-  
+
   userId String
-  user User @relation(fields: [userId],references: [id]) 
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Meeting {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetingUrl String //firebase link
+
+  name String
+
+  question String?
+  answer String?
+
+  status MeetingStatus @default(PROCESSING)
+  issues Issue[]
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model Issue {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  start String
+  end String
+  gist String
+  headline String
+  summary String
+
+  meetingId String
+  meeting Meeting @relation(fields: [meetingId], references: [id])
+}
+
+enum MeetingStatus {
+  PROCESSING
+  COMPLETED
 }

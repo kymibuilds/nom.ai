@@ -87,6 +87,7 @@ export const projectRouter = createTRPCRouter({
         data: { summary },
       });
     }),
+
   saveAnswer: protectedProcedure
     .input(
       z.object({
@@ -100,13 +101,14 @@ export const projectRouter = createTRPCRouter({
       return ctx.db.question.create({
         data: {
           projectId: input.projectId,
-          userId: ctx.user.userId, // REQUIRED FIELD
+          userId: ctx.user.userId,
           question: input.question,
           answer: input.answer,
           filesReferences: input.filesReferences ?? null,
         },
       });
     }),
+
   getQuestions: protectedProcedure
     .input(
       z.object({
@@ -121,6 +123,47 @@ export const projectRouter = createTRPCRouter({
         },
         include: {
           user: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }),
+
+  uploadMeeting: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        meetingUrl: z.string(),
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const meeting = await ctx.db.meeting.create({
+        data: {
+          name: input.name,
+          meetingUrl: input.meetingUrl,
+          projectId: input.projectId,
+          status: "PROCESSING",
+        },
+      });
+
+      return meeting;
+    }),
+
+  getMeetings: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.meeting.findMany({
+        where: {
+          projectId: input.projectId,
+        },
+        include: {
+          issues: true,
         },
         orderBy: {
           createdAt: "desc",
