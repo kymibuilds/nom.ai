@@ -12,10 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
 import React, { useState, type FormEvent } from "react";
 import { askQuestion } from "./actions";
-import MDEditor from "@uiw/react-md-editor";
+// import MDEditor from "@uiw/react-md-editor";
 import CodeReferences from "./code-references";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -30,6 +31,7 @@ const AskQuestionCard = () => {
   >([]);
 
   const [answer, setAnswer] = useState("");
+  const refetch = useRefetch();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     setAnswer("");
@@ -70,6 +72,7 @@ const AskQuestionCard = () => {
                 },{
                   onSuccess: ()=>{
                     toast.success('Answer Saved!')
+                    void refetch();
                   },
                   onError: () => {
                     toast.error("Failed to save Answer!")
