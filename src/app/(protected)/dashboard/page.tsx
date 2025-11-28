@@ -6,6 +6,9 @@ import React from "react";
 import CommitLog from "./commit-log";
 import AskQuestionCard from "./ask-question-card";
 import MeetingCard from "./meeting-card";
+import ArchiveButton from "./archive-button";
+import InviteButton from "./invite-button";
+import { AvatarGroupWithTooltips } from "../../../../components/shsfui/avatar/avatar-group-with-tooltip";
 
 function DashboardPage() {
   const { project } = useProject();
@@ -30,8 +33,8 @@ function DashboardPage() {
 
         <div className="h-4"></div>
 
-        <div className="flex items-center gap-4">
-          TeamMembers InviteButton ArchiveButton
+        <div className="flex items-center gap-1">
+          <AvatarGroupWithTooltips className="rounded-md"/> <InviteButton/> <ArchiveButton />
         </div>
       </div>
 
