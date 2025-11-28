@@ -1,14 +1,19 @@
 "use client";
-import useProject from "@/hooks/use-project";
-import { ExternalLink, Github } from "lucide-react";
-import Link from "next/link";
+
 import React from "react";
+import Link from "next/link";
+
+import { ExternalLink, Github } from "lucide-react";
+
+import useProject from "@/hooks/use-project";
+
 import CommitLog from "./commit-log";
 import AskQuestionCard from "./ask-question-card";
 import MeetingCard from "./meeting-card";
 import ArchiveButton from "./archive-button";
 import InviteButton from "./invite-button";
-import { AvatarGroupWithTooltips } from "../../../../components/shsfui/avatar/avatar-group-with-tooltip";
+import TeamMembers from "./team-members";
+// import { AvatarGroupWithTooltips } from "../../../../components/shsfui/avatar/avatar-group-with-tooltip";
 
 function DashboardPage() {
   const { project } = useProject();
@@ -17,7 +22,7 @@ function DashboardPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-y-4">
         {/* github link */}
-        <div className="bg-primary w-fit rounded-md px-4 py-1.5 flex items-center gap-2">
+        <div className="bg-primary flex w-fit items-center gap-2 rounded-md px-4 py-1.5">
           <Github className="size-5 text-white" />
           <p className="text-sm font-medium text-white">
             This project is linked to{" "}
@@ -34,7 +39,7 @@ function DashboardPage() {
         <div className="h-4"></div>
 
         <div className="flex items-center gap-1">
-          <AvatarGroupWithTooltips className="rounded-md"/> <InviteButton/> <ArchiveButton />
+          <TeamMembers /> <InviteButton /> <ArchiveButton />
         </div>
       </div>
 
