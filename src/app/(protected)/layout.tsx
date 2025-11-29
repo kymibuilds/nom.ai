@@ -1,6 +1,5 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "./app-sidebar";
-import { UserButton } from "@clerk/nextjs";
 import React from "react";
 
 export default function ProtectedLayout({
@@ -10,38 +9,18 @@ export default function ProtectedLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
-        {/* Sidebar (client component internally) */}
-        <AppSidebar />
-
-        <main className="flex flex-col flex-1 m-4 gap-4">
-          <header
-            className="
-              h-12
-              flex items-center justify-end
-              bg-background
-              border border-sidebar-border
-              rounded-sm
-              px-4
-            "
-          >
-            <UserButton />
-          </header>
-
-          <section
-            className="
-              flex-1
-              overflow-y-auto
-              bg-background
-              border border-sidebar-border
-              rounded-sm
-              p-4
-            "
-          >
-            {children}
-          </section>
+      <AppSidebar />
+      <SidebarInset>
+        <main className="flex flex-1 flex-col p-4">
+          {/* Mobile Trigger: 
+            Since the header is gone, we need a way to open the sidebar on mobile.
+            "md:hidden" hides it on desktop screens.
+          */}
+          <SidebarTrigger className="md:hidden mb-4" />
+          
+          {children}
         </main>
-      </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -32,7 +32,7 @@ const BillingPage = () => {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Billing & Usage</h1>
         <p className="text-muted-foreground text-sm">
-          Manage your credits and subscription plan.
+          nom.ai consumes biscuits as credits to index your codebase, purchase them from this page.
         </p>
       </div>
 
@@ -40,7 +40,7 @@ const BillingPage = () => {
       <Card>
         <CardHeader>
           <CardTitle>Current Balance</CardTitle>
-          <CardDescription>Your available credits</CardDescription>
+          <CardDescription>Your available biscuits</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-5xl font-bold">
@@ -49,7 +49,7 @@ const BillingPage = () => {
               to={credits?.credits ?? 0}
               separator=","
               direction="up"
-              duration={1}
+              duration={0.3}
               className="count-up-text"
             />
             <span className="text-muted-foreground ml-2 text-lg font-medium">
@@ -62,19 +62,19 @@ const BillingPage = () => {
       {/* PURCHASE SECTION */}
       <Card>
         <CardHeader>
-          <CardTitle>Top Up Credits</CardTitle>
+          <CardTitle>Purchase More</CardTitle>
           <CardDescription>
-            Purchase more credits to index larger projects.
+            Purchase more biscuits to index larger projects.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* INFO ALERT - Replaced custom div with Shadcn Alert */}
           <Alert className="bg-muted/50 border-none">
             <Info className="h-4 w-4" />
-            <AlertTitle>How credits are used</AlertTitle>
-            <AlertDescription className="text-muted-foreground mt-2 text-sm">
-              Each credit allows you to index 1 file in a repository. For
-              example, if your project has 100 files, you will need 100 credits.
+            <AlertTitle>How biscuits are used</AlertTitle>
+            <AlertDescription className="text-muted-foreground mt-1 text-sm">
+              Each biscuit allows you to index 1 file in a repository. For
+              example, if your project has 100 files, you will need 100 biscuits.
             </AlertDescription>
           </Alert>
 

@@ -3,7 +3,7 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter, // Added SidebarFooter
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -20,7 +20,7 @@ import {
   LayoutDashboard,
   NotebookPen,
   Plus,
-  Settings, // Added Settings icon
+  Settings,
   Trash,
 } from "lucide-react";
 
@@ -32,6 +32,7 @@ import useProject from "@/hooks/use-project";
 import Image from "next/image";
 import SettingsModal from "@/components/modals/settings-modal";
 import { useState } from "react";
+import { CustomUserButton } from "@/components/user-button";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -151,7 +152,7 @@ function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* FOOTER - Redesigned */}
+      {/* FOOTER */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -160,6 +161,7 @@ function AppSidebar() {
               <span>Recycle Bin</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Settings"
@@ -170,6 +172,13 @@ function AppSidebar() {
             </SidebarMenuButton>
             <SettingsModal open={openSettings} onOpenChange={setOpenSettings} />
           </SidebarMenuItem>
+        </SidebarMenu>
+        
+        {/* User Button Section */}
+        <SidebarMenu>
+           <SidebarMenuItem>
+              <CustomUserButton />
+           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
