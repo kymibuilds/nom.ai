@@ -3,6 +3,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter, // Added SidebarFooter
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -19,6 +20,7 @@ import {
   LayoutDashboard,
   NotebookPen,
   Plus,
+  Settings, // Added Settings icon
   Trash,
 } from "lucide-react";
 
@@ -27,7 +29,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import useProject from "@/hooks/use-project";
-import { ModeToggle } from "@/components/theme-toggle-button";
+import Image from "next/image";
+import SettingsModal from "@/components/modals/settings-modal";
+import { useState } from "react";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -41,18 +45,18 @@ function AppSidebar() {
   const { open } = useSidebar();
   const router = useRouter();
   const { projects, projectId, setProjectId } = useProject();
+  const [openSettings, setOpenSettings] = useState(false);
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
       {/* HEADER */}
       <SidebarHeader className="px-3">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
-            Qode
-          </span>
-          <span className="hidden text-lg font-bold group-data-[collapsible=icon]:block">
-            Q
-          </span>
+        <div
+          className="cursor-pointer"
+          role="button"
+          onClick={() => router.push("/dashboard")}
+        >
+          <Image src="/logo/logo.png" alt="logo" width={22} height={22} />
         </div>
       </SidebarHeader>
 
@@ -109,7 +113,7 @@ function AppSidebar() {
                     >
                       <div
                         className={cn(
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-medium border"
+                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-medium",
                         )}
                       >
                         {project.name?.[0]?.toUpperCase() ?? "P"}
@@ -126,7 +130,7 @@ function AppSidebar() {
                 {open ? (
                   <Button
                     variant="ghost"
-                    className="w-full justify-start gap-2 px-2 text-sm text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground w-full justify-start gap-2 px-2 text-sm"
                     onClick={() => router.push("/create")}
                   >
                     <Plus className="h-4 w-4" />
@@ -147,16 +151,27 @@ function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <div className="w-full flex items-center gap-1 px-2">
-        <Trash className="w-4 h-4"/>
-        <p>recycle bin</p>
-      </div>
-
-      <div className="p-3 mt-auto">
-        <div className="flex justify-end group-data-[collapsible=icon]:justify-center">
-          <ModeToggle />
-        </div>
-      </div>
+      {/* FOOTER - Redesigned */}
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Recycle Bin">
+              <Trash />
+              <span>Recycle Bin</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Settings"
+              onClick={() => setOpenSettings(true)}
+            >
+              <Settings />
+              <span>Settings</span>
+            </SidebarMenuButton>
+            <SettingsModal open={openSettings} onOpenChange={setOpenSettings} />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
