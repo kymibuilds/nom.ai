@@ -24,7 +24,7 @@ function MeetingCard() {
   const project = useProject();
   const router = useRouter();
 
-  // PROCESS MEETING (client → API route)
+  // PROCESS MEETING (API route)
   const processMeeting = useMutation({
     mutationFn: async ({
       meetingUrl,
@@ -57,46 +57,47 @@ function MeetingCard() {
     accept: { "audio/*": [".mp3", ".wav", ".m4a"] },
     multiple: false,
     maxSize: 50_000_000,
-    onDrop: async (acceptedFiles) => {
-      if (!acceptedFiles.length) return;
+    onDrop: (acceptedFiles) => {
+      void (async () => {
+        if (!acceptedFiles.length) return;
 
-      setIsUploading(true);
+        setIsUploading(true);
 
-      const file = acceptedFiles[0];
-      setFileName(file?.name ?? "untitled");
+        const file = acceptedFiles[0];
+        setFileName(file?.name ?? "untitled");
 
-      // WAIT for Firebase upload — DO NOT use void
-      const downloadURL = await uploadFile(file as File, setProgress);
+        const downloadURL = await uploadFile(file as File, setProgress);
 
-      uploadMeeting.mutate(
-        {
-          projectId: project.projectId,
-          meetingUrl: downloadURL,
-          name: file?.name ?? "error",
-        },
-        {
-          onSuccess:  (data) => {
-            const meetingId = data.id;
-
-            toast.success("Meeting uploaded successfully");
-
-            // Now process the meeting (AI summaries)
-            void processMeeting.mutateAsync({
-              meetingUrl: downloadURL,
-              meetingId,
-              projectId: project.projectId,
-            });
-
-            router.push("/meetings");
+        uploadMeeting.mutate(
+          {
+            projectId: project.projectId,
+            meetingUrl: downloadURL,
+            name: file?.name ?? "error",
           },
-          onError: () => {
-            toast.error("Failed to upload meeting.");
-          },
-          onSettled: () => {
-            setIsUploading(false);
-          },
-        }
-      );
+          {
+            onSuccess: (data) => {
+              const meetingId = data.id;
+
+              toast.success("Meeting uploaded successfully");
+
+              // trigger processing
+              void processMeeting.mutateAsync({
+                meetingUrl: downloadURL,
+                meetingId,
+                projectId: project.projectId,
+              });
+
+              router.push("/meetings");
+            },
+            onError: () => {
+              toast.error("Failed to upload meeting.");
+            },
+            onSettled: () => {
+              setIsUploading(false);
+            },
+          }
+        );
+      })();
     },
   });
 

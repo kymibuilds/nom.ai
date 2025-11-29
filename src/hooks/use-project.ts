@@ -2,7 +2,7 @@ import { api } from "@/trpc/react";
 import { useLocalStorage } from "usehooks-ts";
 
 function useProject() {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const { data: projects } = api.project.getProjects.useQuery();
 
   const [projectId, setProjectId] = useLocalStorage("qode-project", "");

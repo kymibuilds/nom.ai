@@ -89,7 +89,7 @@ export const indexGithubRepo = async (
   const processed = await generateEmbeddings(docs);
 
   await Promise.allSettled(
-    processed.map(async (item, idx) => {
+    processed.map(async (item, _idx) => {
       if (!item.embedding) return;
 
       const row = await db.sourceCodeEmbedding.create({

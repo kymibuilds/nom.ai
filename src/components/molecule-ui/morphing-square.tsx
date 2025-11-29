@@ -1,7 +1,7 @@
 "use client"
 
 import { cva } from "class-variance-authority"
-import { HTMLMotionProps, motion } from "motion/react"
+import { type HTMLMotionProps, motion } from "motion/react"
 
 import { cn } from "@/lib/utils"
 

@@ -51,7 +51,7 @@ function MeetingsPage() {
                   <div className="flex items-center gap-2">
                     {/* Link covers the text, but the whole row feels interactive due to hover */}
                     <Link 
-                      href={`/meeting/${meeting.id}`} 
+                      href={`/meetings/${meeting.id}`} 
                       className="text-sm font-semibold text-gray-900 hover:text-blue-600 hover:underline"
                     >
                       {meeting.name}
@@ -73,7 +73,7 @@ function MeetingsPage() {
 
                 {/* Right side actions */}
                 <div className="flex items-center gap-2">
-                    <Link href={`/meeting/${meeting.id}`}>
+                    <Link href={`/meetings/${meeting.id}`}>
                         <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-500">
                             <ArrowRight className="w-4 h-4" />
                         </Button>

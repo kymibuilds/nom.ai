@@ -33,7 +33,7 @@ export function parseGitHubUrl(url: string) {
 -------------------------------------------- */
 function getClient(githubToken?: string) {
   return new Octokit({
-    auth: githubToken || process.env.GITHUB_TOKEN,
+    auth: githubToken ?? process.env.GITHUB_TOKEN,
   });
 }
 
@@ -98,7 +98,9 @@ async function summariseCommit(
 
     const diff = res.data as unknown as string;
     return (await aiSummarizeCommit(diff)) ?? "";
-  } catch (err) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    
     console.log("Commit summary failed:", commitHash);
     return "";
   }

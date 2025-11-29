@@ -1,9 +1,11 @@
 "use client";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const search = useSearchParams();
   const sessionId = search.get("session_id");
 
@@ -21,8 +23,6 @@ export default function SuccessPage() {
 
         setAmount(data.amount);
         setCredits(data.credits);
-      } catch {
-        //
       } finally {
         setLoading(false);
       }
@@ -39,9 +39,7 @@ export default function SuccessPage() {
       <h1 className="text-2xl font-semibold">Payment Successful</h1>
       <div className="h-3"></div>
 
-      <p className="text-gray-700">
-        Your purchase was completed successfully.
-      </p>
+      <p className="text-gray-700">Your purchase was completed successfully.</p>
 
       <div className="h-4"></div>
 
@@ -64,5 +62,13 @@ export default function SuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<p>Loading payment...</p>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
