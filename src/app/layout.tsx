@@ -4,9 +4,9 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
-
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "qode",
@@ -24,10 +24,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${geist.variable}`}>
+      <html lang="en" className={geist.variable} suppressHydrationWarning>
         <body>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          <Toaster richColors />
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <Toaster richColors />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
