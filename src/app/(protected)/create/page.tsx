@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import useRefetch from "@/hooks/use-refetch";
 import { api } from "@/trpc/react";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -31,62 +31,32 @@ function CreatePage() {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const [calcError, setCalcError] = useState<string | null>(null);
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const reqIdRef = useRef(0);
-
-  useEffect(() => {
-    setCalcError(null);
-    setFileCount(null);
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
-    }
-
+  const calculateBiscuits = async () => {
     if (!repoUrl || repoUrl.trim() === "") {
-      setCalculating(false);
+      setCalcError("Enter a repository URL first.");
       return;
     }
 
     setCalculating(true);
+    setCalcError(null);
+    setFileCount(null);
+    setUserCredits(null);
 
-    debounceRef.current = setTimeout(() => {
-      const requestId = ++reqIdRef.current;
+    try {
+      const res = await checkCredits.mutateAsync({
+        githubUrl: repoUrl,
+      });
 
-      const runCheck = async () => {
-        try {
-          const res = await checkCredits.mutateAsync({
-            githubUrl: repoUrl,
-          });
-
-          if (requestId !== reqIdRef.current) return;
-
-          setFileCount(res.fileCount ?? null);
-          setUserCredits(res.userCredits ?? null);
-          setCalcError(null);
-        } catch (err: unknown) {
-          if (requestId !== reqIdRef.current) return;
-
-          const message =
-            err instanceof Error ? err.message : "Failed to calculate credits";
-
-          setCalcError(message);
-          setFileCount(null);
-          setUserCredits(null);
-        } finally {
-          if (requestId === reqIdRef.current) {
-            setCalculating(false);
-          }
-        }
-      };
-
-      void runCheck();
-    }, 700);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [repoUrl, checkCredits]);
+      setFileCount(res.fileCount ?? null);
+      setUserCredits(res.userCredits ?? null);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to calculate biscuits";
+      setCalcError(message);
+    } finally {
+      setCalculating(false);
+    }
+  };
 
   const onSubmit = async (data: FormInput) => {
     try {
@@ -95,11 +65,12 @@ function CreatePage() {
         githubToken: data.githubToken,
       });
 
-      const { fileCount: required, userCredits: creditsHave } = creditResult;
+      const required = creditResult.fileCount;
+      const creditsHave = creditResult.userCredits;
 
       if (required > creditsHave) {
         toast.error(
-          `Not enough biscuits. Repo needs ${required} but you have ${creditsHave}.`
+          `Not enough biscuits. Repo needs ${required} but you have ${creditsHave}.`,
         );
         return;
       }
@@ -115,9 +86,9 @@ function CreatePage() {
         githubToken: data.githubToken,
       },
       {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onSuccess: async () => {
+        onSuccess: () => {
           toast.success("Project created successfully");
+
           void refetch().then(() => {
             reset();
             setFileCount(null);
@@ -127,16 +98,17 @@ function CreatePage() {
         onError: () => {
           toast.error("Failed to create project");
         },
-      }
+      },
     );
   };
 
-  const helperText = calculating
-    ? "Calculating biscuits..."
-    : calcError ??
-      (fileCount === null
-        ? "Enter a repository URL to see biscuits required."
-        : `Requires ${fileCount} biscuits — you have ${userCredits ?? 0}.`);
+  const helperText =
+    calcError ??
+    (calculating
+      ? "Calculating biscuits..."
+      : fileCount !== null
+        ? `Requires ${fileCount} biscuits — you have ${userCredits ?? 0}.`
+        : "Press 'Check Credits' to calculate biscuits.");
 
   return (
     <div className="flex h-full items-center justify-center gap-12">
@@ -160,17 +132,7 @@ function CreatePage() {
               type="url"
               {...register("repoUrl")}
             />
-            <p
-              className={`text-sm mt-1 ${
-                calculating
-                  ? "text-gray-500"
-                  : calcError
-                  ? "text-red-500"
-                  : "text-muted-foreground"
-              }`}
-            >
-              {helperText}
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">{helperText}</p>
           </div>
 
           <Input
@@ -184,14 +146,25 @@ function CreatePage() {
             {...register("githubToken")}
           />
 
-          <Button
-            variant="default"
-            size="sm"
-            type="submit"
-            disabled={createProject.isPending || calculating}
-          >
-            Check Credits
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={calculateBiscuits}
+              disabled={calculating}
+            >
+              Check Credits
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              type="submit"
+              disabled={createProject.isPending}
+            >
+              Create Project
+            </Button>
+          </div>
         </form>
       </div>
     </div>
