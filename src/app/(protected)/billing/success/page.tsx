@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Stripe from "stripe";
 
 export default function SuccessPage() {
   const search = useSearchParams();
