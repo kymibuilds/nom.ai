@@ -190,7 +190,7 @@ function CreatePage() {
             type="submit"
             disabled={createProject.isPending || calculating}
           >
-            Create Project
+            Check Credits
           </Button>
         </form>
       </div>

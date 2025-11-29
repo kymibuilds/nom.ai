@@ -22,6 +22,38 @@ export const projectRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // 1. Count repo files (credits needed)
+      const requiredCredits = await checkCredits(
+        input.githubUrl,
+        input.githubToken,
+      );
+
+      // 2. Get user’s available credits
+      const user = await ctx.db.user.findUnique({
+        where: { id: ctx.user.userId },
+        select: { credits: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
+      // 3. Compare
+      if (user.credits < requiredCredits) {
+        throw new Error(
+          `Not enough credits. Repo requires ${requiredCredits}, but you only have ${user.credits}.`,
+        );
+      }
+
+      // 4. Deduct credits BEFORE processing repo
+      await ctx.db.user.update({
+        where: { id: ctx.user.userId },
+        data: {
+          credits: {
+            decrement: requiredCredits,
+          },
+        },
+      });
+
+      // 5. Create project
       const project = await ctx.db.project.create({
         data: {
           name: input.name,
@@ -32,6 +64,7 @@ export const projectRouter = createTRPCRouter({
         },
       });
 
+      // 6. Process repo
       await pollCommits(project.id, input.githubToken);
       await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
 
@@ -178,63 +211,62 @@ export const projectRouter = createTRPCRouter({
       });
     }),
   getMeetingById: protectedProcedure
-  .input(z.object({ meetingId: z.string() }))
-  .query(async ({ ctx, input }) => {
-    return await ctx.db.meeting.findUnique({
-      where: { id: input.meetingId },
-      include: {
-        issues: true,
-      },
-    });
-  }),
+    .input(z.object({ meetingId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.meeting.findUnique({
+        where: { id: input.meetingId },
+        include: {
+          issues: true,
+        },
+      });
+    }),
   archiveProject: protectedProcedure
-  .input(
-    z.object({
-      projectId: z.string(),
-    })
-  )
-  .mutation(async ({ ctx, input }) => {
-    return ctx.db.project.update({
-      where: {
-        id: input.projectId,
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-  }),
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.project.update({
+        where: {
+          id: input.projectId,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+    }),
   getTeamMembers: protectedProcedure
-  .input(z.object({ projectId: z.string() }))
-  .query(async ({ ctx, input }) => {
-    return await ctx.db.userToProject.findMany({
-      where: { projectId: input.projectId },
-      include: { user: true },
-    });
-  }),
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.userToProject.findMany({
+        where: { projectId: input.projectId },
+        include: { user: true },
+      });
+    }),
   getMyCredits: protectedProcedure.query(async ({ ctx }) => {
-  return await ctx.db.user.findUnique({
-    where: { id: ctx.user.userId },
-    select: { credits: true },
-  });
-}),
-checkCredits: protectedProcedure
-  .input(
-    z.object({
-      githubUrl: z.string(),
-      githubToken: z.string().optional(),
-    })
-  )
-  .mutation(async ({ input, ctx }) => {
-    const fileCount = await checkCredits(input.githubUrl, input.githubToken);
-    const userCredits = await ctx.db.user.findUnique({
+    return await ctx.db.user.findUnique({
       where: { id: ctx.user.userId },
       select: { credits: true },
     });
-
-    return {
-      fileCount,
-      userCredits: userCredits?.credits ?? 0,
-    };
   }),
+  checkCredits: protectedProcedure
+    .input(
+      z.object({
+        githubUrl: z.string(),
+        githubToken: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const fileCount = await checkCredits(input.githubUrl, input.githubToken);
+      const userCredits = await ctx.db.user.findUnique({
+        where: { id: ctx.user.userId },
+        select: { credits: true },
+      });
 
+      return {
+        fileCount,
+        userCredits: userCredits?.credits ?? 0,
+      };
+    }),
 });
