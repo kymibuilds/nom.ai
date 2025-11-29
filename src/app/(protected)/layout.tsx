@@ -1,22 +1,20 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { UserButton } from "@clerk/nextjs";
 import AppSidebar from "./app-sidebar";
+import { UserButton } from "@clerk/nextjs";
 import React from "react";
 
-type Props = {
+export default function ProtectedLayout({
+  children,
+}: {
   children: React.ReactNode;
-};
-
-const SidebarLayout = ({ children }: Props) => {
+}) {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full">
-        {/* Sidebar */}
+        {/* Sidebar (client component internally) */}
         <AppSidebar />
 
-        {/* Main area */}
         <main className="flex flex-col flex-1 m-4 gap-4">
-          {/* Top header bar */}
           <header
             className="
               h-12
@@ -30,7 +28,6 @@ const SidebarLayout = ({ children }: Props) => {
             <UserButton />
           </header>
 
-          {/* Content area */}
           <section
             className="
               flex-1
@@ -47,6 +44,4 @@ const SidebarLayout = ({ children }: Props) => {
       </div>
     </SidebarProvider>
   );
-};
-
-export default SidebarLayout;
+}
