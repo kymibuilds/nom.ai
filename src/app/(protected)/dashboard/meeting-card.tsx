@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { uploadFile } from "@/lib/firebase";
-import { Presentation, Upload, FileAudio, CheckCircle2 } from "lucide-react";
+import { Presentation, Upload, CheckCircle2 } from "lucide-react";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
