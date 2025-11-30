@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -10,26 +12,70 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
-import React, { useState, type FormEvent } from "react";
+import React, { useEffect, useState, type FormEvent } from "react";
 import { askQuestion } from "./actions";
 import CodeReferences from "./code-references";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/use-refetch";
-import { Loader2, Sparkles, Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import SiriOrb from "@/components/smoothui/siri-orb";
+import { AnimatePresence, motion } from "framer-motion";
+
+const exampleQuestions = [
+  "Trace the full request lifecycle for a core API endpoint.",
+  "Explain how data flows from the frontend to the database.",
+  "Map out the system architecture and how modules depend on each other.",
+  "Identify bottlenecks in the authentication flow.",
+  "Explain how server and client components share and manage state.",
+  "Detect hidden side effects in the user settings update flow.",
+  "Find duplicate logic across the codebase that should be refactored.",
+  "Identify inconsistent or missing error-handling patterns.",
+  "Highlight performance issues caused by unnecessary re-renders.",
+  "Find potential security vulnerabilities in the API layer.",
+  "Locate parts of the code that could leak sensitive data.",
+  "Identify database operations missing validation or sanitization.",
+  "Generate an onboarding summary explaining each major module.",
+  "Describe how background jobs and schedulers operate internally.",
+  "Identify assumptions the project makes about environment variables.",
+  "Trace code paths likely responsible for recent runtime errors.",
+  "Locate functions with potential memory leaks or excessive allocations.",
+  "Predict scaling issues that may occur at 10× or 100× traffic.",
+  "Identify outdated or risky dependencies affecting stability.",
+  "Suggest missing tests based on current feature coverage."
+];
+
+
+const flipVariants = {
+  initial: { opacity: 0, y: 6, filter: "blur(4px)" },
+  enter: { opacity: 1, y: 0, filter: "blur(0px)" },
+  exit: { opacity: 0, y: -6, filter: "blur(4px)" },
+};
 
 const AskQuestionCard = () => {
   const { project } = useProject();
   const [question, setQuestion] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [exampleIndex, setExampleIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const saveAnswer = api.project.saveAnswer.useMutation();
   const [filesReferences, setFilesReferences] = useState<
     { fileName: string; sourceCode: string; summary: string }[]
   >([]);
   const [answer, setAnswer] = useState("");
   const refetch = useRefetch();
+
+  useEffect(() => {
+    if (open || isTyping) return;
+
+    const interval = setInterval(() => {
+      setExampleIndex((i) => (i + 1) % exampleQuestions.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [open, isTyping]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +94,7 @@ const AskQuestionCard = () => {
       for await (const delta of textStream) {
         setAnswer((prev) => prev + delta);
       }
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to generate answer");
       setOpen(false);
     } finally {
@@ -61,10 +107,19 @@ const AskQuestionCard = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl">
           <DialogHeader className="flex shrink-0 flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="text-primary h-5 w-5" />
-              <DialogTitle>Qode AI</DialogTitle>
+            <div className="flex items-center gap-3">
+              <SiriOrb
+                size="50px"
+                colors={{
+                  bg: "transparent",
+                  c1: "#3b82f6",
+                  c2: "#6366f1",
+                  c3: "#06b6d4",
+                }}
+              />
+              <DialogTitle className="text-lg">Qode AI</DialogTitle>
             </div>
+
             <Button
               disabled={saveAnswer.isPending || !answer}
               onClick={() => {
@@ -95,16 +150,18 @@ const AskQuestionCard = () => {
             <div className="bg-muted/50 border-muted mb-6 rounded-lg border p-3">
               <p className="text-foreground text-sm font-medium">{question}</p>
             </div>
+
             <div className="prose prose-sm dark:prose-invert text-foreground max-w-none">
               {answer ? (
                 <ReactMarkdown>{answer}</ReactMarkdown>
               ) : (
                 <div className="text-muted-foreground flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Analyzing
-                  codebase...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing codebase...
                 </div>
               )}
             </div>
+
             <div className="h-6"></div>
             <CodeReferences filesReferences={filesReferences} />
           </div>
@@ -113,32 +170,57 @@ const AskQuestionCard = () => {
 
       <Card className="relative col-span-3 border-0 bg-transparent shadow-none">
         <CardContent className="p-0">
-          {/* Header */}
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
-              <Sparkles className="text-primary fill-primary/10 h-5 w-5" />
+          <div className="mb-4 flex items-center gap-4">
+            <SiriOrb
+              size="44px"
+              colors={{
+                bg: "transparent",
+                c1: "#3b82f6",
+                c2: "#6366f1",
+                c3: "#06b6d4",
+              }}
+            />
+            <h3 className="text-foreground text-lg font-semibold">
               Ask your codebase
             </h3>
           </div>
 
           <form
             onSubmit={onSubmit}
-            className="bg-card focus-within:ring-primary/20 hover:border-primary/30 flex items-center gap-2 rounded-xl border px-3 py-1 shadow-sm transition-all focus-within:ring-2"
+            className="group bg-card focus-within:ring-primary/20 hover:border-primary/30 flex items-end gap-2 rounded-xl border px-1 py-[0.8] shadow-sm transition-all focus-within:ring-2"
           >
-            {/* Slim Input */}
-            <Textarea
-              placeholder="e.g. How does the auth flow work?"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className="placeholder:text-muted-foreground/60 max-h-[100px] min-h-[50px] flex-1 resize-none border-0 bg-transparent py-3.5 text-sm shadow-none focus-visible:ring-0"
-            />
+            <div className="relative flex-1">
+              {/* Centered animated placeholder */}
+              {!question && (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={exampleIndex}
+                    variants={flipVariants}
+                    initial="initial"
+                    animate="enter"
+                    exit="exit"
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="text-muted-foreground/60 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm"
+                  >
+                    {exampleQuestions[exampleIndex]}
+                  </motion.div>
+                </AnimatePresence>
+              )}
 
-            {/* Parallel Button */}
+              <Textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onFocus={() => setIsTyping(true)}
+                onBlur={() => setIsTyping(false)}
+                className="max-h-[140px] min-h-11 flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-sm shadow-none focus-visible:ring-0"
+              />
+            </div>
+
             <Button
               type="submit"
               disabled={loading || !question.trim()}
               size="icon"
-              className="bg-primary hover:bg-primary/90 h-9 w-9 shrink-0 rounded-lg"
+              className="bg-primary hover:bg-primary/90 mb-0.5 h-10 w-10 shrink-0 rounded-lg transition-all"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
