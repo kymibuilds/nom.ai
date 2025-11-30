@@ -1,12 +1,14 @@
 "use client";
+
 import useProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { ExternalLink, RefreshCw } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 function CommitLog() {
   const { projectId, project } = useProject();
@@ -18,7 +20,7 @@ function CommitLog() {
     onMutate: ({ commitId }) => {
       setRegeneratingIds(prev => new Set(prev).add(commitId));
     },
-    onSuccess: async (_,) => {
+    onSuccess: async () => {
       toast.success("Summary regenerated successfully!");
       await utils.project.getCommits.invalidate({ projectId });
     },
@@ -39,81 +41,78 @@ function CommitLog() {
   };
 
   return (
-    <>
-      <ul className="space-y-6">
-        {commits?.map((commit, commitIndex) => {
-          const isRegenerating = regeneratingIds.has(commit.id);
-          
-          return (
-            <li key={commit.id} className="relative flex gap-x-4">
-              {/* Vertical Strip (Container width set to w-10 to center the line under the 40px avatar) */}
-              <div
-                className={cn(
-                  commitIndex === commits.length - 1 ? "h-6" : "-bottom-6",
-                  "absolute top-0 left-0 flex w-10 justify-center", // w-10 centers the line for the 40px avatar
-                )}
-              >
-                {/* The vertical strip */}
-                <div className="w-px bg-gray-200"></div>
-              </div>
-              {/* Avatar (Directly using w-10 h-10 and 40px props) */}
-              <div className="relative z-10 mt-0.5 flex-none w-10 h-10">
-                <Image
-                  src={commit.commitAuthorAvatar}
-                  alt="author avatar"
-                  // Next.js Image component width/height props set to 40
-                  width={40} 
-                  height={40}
-                  // Apply the 40px size class to the rendered image element
-                  className="w-10 h-10 rounded-full bg-white ring-2 ring-white border-2 border-gray-200"
-                />
-              </div>
-              {/* Commit block */}
-              <div className="flex-auto rounded-md bg-white p-3 ring-1 ring-gray-200 ring-inset">
-                <div className="flex justify-between gap-x-4">
-                  <Link
-                    href={`${project?.githubUrl}/commit/${commit.commitHash}`}
-                    target="_blank"
-                    className="py-0.5 text-xs leading-5 text-gray-500"
-                  >
-                    <span className="font-medium text-gray-900">
+    <ul className="space-y-6">
+      {commits?.map((commit, commitIndex) => {
+        const isRegenerating = regeneratingIds.has(commit.id);
+        
+        return (
+          <li key={commit.id} className="relative flex gap-x-4">
+            {/* Vertical Line */}
+            <div
+              className={cn(
+                commitIndex === commits.length - 1 ? "h-6" : "-bottom-6",
+                "absolute top-0 left-0 flex w-10 justify-center",
+              )}
+            >
+              <div className="w-px bg-border" />
+            </div>
+
+            {/* Avatar */}
+            <div className="relative mt-1 flex-none">
+              <Avatar className="h-10 w-10 ring-4 ring-background border bg-background">
+                <AvatarImage src={commit.commitAuthorAvatar} alt={commit.commitAuthorName} />
+                <AvatarFallback>{commit.commitAuthorName[0]}</AvatarFallback>
+              </Avatar>
+            </div>
+
+            {/* Commit Card */}
+            <div className="flex-auto rounded-lg bg-card p-4 border text-card-foreground shadow-sm">
+              <div className="flex justify-between items-center gap-x-4 mb-2">
+                <Link
+                  href={`${project?.githubUrl}/commit/${commit.commitHash}`}
+                  target="_blank"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                    <span className="font-semibold text-foreground">
                       {commit.commitAuthorName}
-                    </span>{" "}
-                    <span className="inline-flex items-center">
-                      committed
-                      <ExternalLink className="ml-1 h-4 w-4" />
                     </span>
-                  </Link>
-                  
-                  <button
+                    <span>committed</span>
+                    <ExternalLink className="h-3 w-3" />
+                </Link>
+                
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                     onClick={() => handleRegenerate(commit.id)}
                     disabled={isRegenerating}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="Regenerate summary"
-                  >
+                >
                     <RefreshCw 
                       className={cn(
-                        "h-3 w-3",
+                        "h-3 w-3 mr-1",
                         isRegenerating && "animate-spin"
                       )} 
                     />
-                    {isRegenerating ? "Regenerating..." : "Regenerate"}
-                  </button>
-                </div>
-                <span className="font-semibold">{commit.commitMessage}</span>
-                <pre className="mt-2 text-sm leading-6 whitespace-pre-wrap text-gray-500">
-                  {commit.summary || (
-                    <span className="italic text-gray-400">
-                      No summary available
-                    </span>
-                  )}
-                </pre>
+                    {isRegenerating ? "Updating..." : "Refresh"}
+                </Button>
               </div>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+
+              <h3 className="font-semibold text-sm mb-2 break-all">
+                {commit.commitMessage}
+              </h3>
+              
+              <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {commit.summary || (
+                  <span className="italic opacity-70">
+                    No summary available
+                  </span>
+                )}
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

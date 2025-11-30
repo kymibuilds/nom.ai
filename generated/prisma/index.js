@@ -241,7 +241,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/to_run/code/repos/qode/generated/prisma",
+      "value": "/home/to_run/code/repos/nom/qode/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -257,7 +257,7 @@ const config = {
     "previewFeatures": [
       "postgresqlExtensions"
     ],
-    "sourceFilePath": "/home/to_run/code/repos/qode/prisma/schema.prisma",
+    "sourceFilePath": "/home/to_run/code/repos/nom/qode/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
