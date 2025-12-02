@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { meetingUrl, projectId, meetingId } = bodyParser.parse(body);
+        const { meetingUrl, meetingId } = bodyParser.parse(body);
 
         const { summaries } = await processMeeting(meetingUrl);
 
@@ -34,12 +34,15 @@ export async function POST(req: NextRequest) {
                 meetingId,
             })),
         });
+
         await db.meeting.update({
-            where: { id: meetingId }, data: {
+            where: { id: meetingId },
+            data: {
                 status: "COMPLETED",
                 name: summaries[0]?.gist
             }
-        })
+        });
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error(error);

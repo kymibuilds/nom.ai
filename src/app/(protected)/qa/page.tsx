@@ -17,9 +17,9 @@ import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Optional but recommended
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function QaPage() {
   const { projectId } = useProject();
@@ -160,17 +160,13 @@ function QaPage() {
                  <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">Code References</h3>
                     <Badge variant="secondary" className="text-xs">
-                        {Array.isArray(selectedQuestion.filesReferences) ? (selectedQuestion.filesReferences as any[]).length : 0}
+                        {Array.isArray(selectedQuestion.filesReferences) ? (selectedQuestion.filesReferences as Array<{fileName: string, sourceCode: string, summary: string}>).length : 0}
                     </Badge>
                  </div>
                 
                 <CodeReferences
                   filesReferences={
-                    (selectedQuestion.filesReferences as {
-                      fileName: string;
-                      sourceCode: string;
-                      summary: string;
-                    }[]) ?? []
+                    (selectedQuestion.filesReferences as Array<{fileName: string, sourceCode: string, summary: string}>) ?? []
                   }
                 />
               </div>

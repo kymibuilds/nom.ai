@@ -44,7 +44,7 @@ export default function TeamPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-8xl mx-auto py-6 md:py-8">
-      {/* PAGE HEADER */}
+      
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Team Settings</h1>
@@ -57,7 +57,6 @@ export default function TeamPage() {
         </div>
       </div>
 
-      {/* MAIN CONTENT CARD - Removed shadows and background fills */}
       <Card className="shadow-none border">
         <CardHeader className="border-b px-6 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -68,7 +67,6 @@ export default function TeamPage() {
                 </CardDescription>
             </div>
             
-            {/* Search Filter */}
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -90,20 +88,22 @@ export default function TeamPage() {
                 <TableHead className="text-right pr-6">Access</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {isLoading ? (
-                // Loading State
                 [...Array(3)].map((_, i) => (
                     <TableRow key={i}>
                         <TableCell className="pl-6"><div className="h-10 w-32 bg-muted rounded animate-pulse" /></TableCell>
                         <TableCell><div className="h-4 w-48 bg-muted rounded animate-pulse" /></TableCell>
                         <TableCell><div className="h-6 w-16 bg-muted rounded animate-pulse" /></TableCell>
-                        <TableCell className="pr-6"><div className="h-8 w-8 bg-muted rounded-full float-right animate-pulse" /></TableCell>
+                        <TableCell className="pr-6">
+                          <div className="h-8 w-8 bg-muted rounded-full float-right animate-pulse" />
+                        </TableCell>
                     </TableRow>
                 ))
               ) : members?.map((m, index) => (
                 <TableRow key={m.id} className="group">
-                  {/* User Column */}
+
                   <TableCell className="pl-6 py-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
@@ -116,7 +116,6 @@ export default function TeamPage() {
                         <span className="font-medium text-sm text-foreground flex items-center gap-2">
                            {m.user.firstName} {m.user.lastName}
                            {index === 0 && (
-                             // Minimal crown icon (no color)
                              <Crown className="h-3 w-3 text-muted-foreground" />
                            )}
                         </span>
@@ -127,12 +126,10 @@ export default function TeamPage() {
                     </div>
                   </TableCell>
 
-                  {/* Email Column */}
                   <TableCell className="text-muted-foreground text-sm">
                     {m.user.emailAddress}
                   </TableCell>
 
-                  {/* Role Column - Simplified Badges */}
                   <TableCell>
                     {index === 0 ? (
                         <Badge variant="secondary" className="font-normal">
@@ -145,7 +142,6 @@ export default function TeamPage() {
                     )}
                   </TableCell>
 
-                  {/* Actions Column */}
                   <TableCell className="text-right pr-6">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -153,31 +149,36 @@ export default function TeamPage() {
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
+
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem 
-                            onClick={() => {
-                                navigator.clipboard.writeText(m.user.emailAddress ?? "");
-                                toast.success("Email copied");
-                            }}
+
+                        <DropdownMenuItem
+                          onClick={() => {
+                            void navigator.clipboard.writeText(m.user.emailAddress ?? "");
+                            toast.success("Email copied");
+                          }}
                         >
                           <Mail className="mr-2 h-4 w-4" />
                           Copy Email
                         </DropdownMenuItem>
-                        
+
                         {index !== 0 && (
-                            <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <ShieldCheck className="mr-2 h-4 w-4" />
-                                    Change Role
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Remove User
-                                </DropdownMenuItem>
-                            </>
+                          <>
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem>
+                              <ShieldCheck className="mr-2 h-4 w-4" />
+                              Change Role
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Remove User
+                            </DropdownMenuItem>
+                          </>
                         )}
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -195,6 +196,7 @@ export default function TeamPage() {
                   </TableCell>
                 </TableRow>
               )}
+
             </TableBody>
           </Table>
         </CardContent>
