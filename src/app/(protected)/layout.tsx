@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import AppSidebar from "./app-sidebar";
+import AppSidebar from "../../components/app-sidebar";
 import React from "react";
 
 export default function ProtectedLayout({

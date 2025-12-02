@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Github, Users, GitCommit, CalendarDays, Bug, Activity, ArrowUpRight } from "lucide-react";
+import { ExternalLink, Github, Users, GitCommit, CalendarDays, Bug, Activity, ArrowUpRight, BellDot, Bell } from "lucide-react";
 import useProject from "@/hooks/use-project";
 import { useUser } from "@clerk/nextjs";
 import { api } from "@/trpc/react";
@@ -32,7 +32,12 @@ export default function DashboardHeader() {
            </p>
         </div>
 
-        {project?.githubUrl && (
+        <div className="flex gap-2 items-center justify-center">
+            <Button className="border border-input" size={"icon-sm"} variant={"ghost"}>
+                <Bell className="text-base hover:text-foreground cursor-pointer h-5 w-5" />
+            </Button>
+
+            {project?.githubUrl && (
             <Button asChild variant="outline" size="sm" className="h-8 rounded-md gap-2 text-xs border-dashed hover:border-solid hover:bg-muted/30">
               <Link href={project.githubUrl} target="_blank">
                 <Github className="size-3.5" />
@@ -41,6 +46,7 @@ export default function DashboardHeader() {
               </Link>
             </Button>
           )}
+        </div>
       </div>
 
       {/* 2. STATS GRID: Sharper, minimal, informative */}
