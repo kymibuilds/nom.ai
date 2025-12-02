@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -46,11 +45,10 @@ const exampleQuestions = [
   "Suggest missing tests based on current feature coverage."
 ];
 
-
 const flipVariants = {
-  initial: { opacity: 0, y: 6, filter: "blur(4px)" },
+  initial: { opacity: 0, y: 10, filter: "blur(4px)" },
   enter: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -6, filter: "blur(4px)" },
+  exit: { opacity: 0, y: -10, filter: "blur(4px)" },
 };
 
 const AskQuestionCard = () => {
@@ -69,11 +67,9 @@ const AskQuestionCard = () => {
 
   useEffect(() => {
     if (open || isTyping) return;
-
     const interval = setInterval(() => {
       setExampleIndex((i) => (i + 1) % exampleQuestions.length);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [open, isTyping]);
 
@@ -105,11 +101,11 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl">
-          <DialogHeader className="flex shrink-0 flex-row items-center justify-between">
+        <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-4xl p-0 gap-0">
+          <DialogHeader className="flex shrink-0 flex-row items-center justify-between border-b px-6 py-4">
             <div className="flex items-center gap-3">
               <SiriOrb
-                size="50px"
+                size="40px"
                 colors={{
                   bg: "transparent",
                   c1: "#3b82f6",
@@ -117,7 +113,7 @@ const AskQuestionCard = () => {
                   c3: "#06b6d4",
                 }}
               />
-              <DialogTitle className="text-lg">Qode AI</DialogTitle>
+              <DialogTitle className="text-lg font-semibold">Qode AI</DialogTitle>
             </div>
 
             <Button
@@ -146,40 +142,42 @@ const AskQuestionCard = () => {
             </Button>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-1 py-4 pr-2">
-            <div className="bg-muted/50 border-muted mb-6 rounded-lg border p-3">
-              <p className="text-foreground text-sm font-medium">{question}</p>
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="bg-muted/30 border border-muted mb-8 rounded-xl p-4">
+              <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider block mb-1">You asked:</span>
+              <p className="text-foreground text-sm font-medium leading-relaxed">{question}</p>
             </div>
 
             <div className="prose prose-sm dark:prose-invert text-foreground max-w-none">
               {answer ? (
                 <ReactMarkdown>{answer}</ReactMarkdown>
               ) : (
-                <div className="text-muted-foreground flex items-center gap-2">
+                <div className="text-muted-foreground flex items-center gap-2 py-4">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Analyzing codebase...
+                  <span className="text-sm">Analyzing codebase...</span>
                 </div>
               )}
             </div>
 
-            <div className="h-6"></div>
-            <CodeReferences filesReferences={filesReferences} />
+            <div className="mt-8">
+              <CodeReferences filesReferences={filesReferences} />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       <Card className="relative col-span-3 border-0 bg-transparent shadow-none">
         <CardContent className="p-0">
-          <div className="mb-4 flex items-center gap-4">
-            <SiriOrb
-              size="44px"
-              colors={{
-                bg: "transparent",
-                c1: "#3b82f6",
-                c2: "#6366f1",
-                c3: "#06b6d4",
-              }}
-            />
+          <div className="mb-4 flex items-center gap-3 pl-1">
+             <SiriOrb
+                size="40px"
+                colors={{
+                  bg: "transparent",
+                  c1: "#3b82f6",
+                  c2: "#6366f1",
+                  c3: "#06b6d4",
+                }}
+              />
             <h3 className="text-foreground text-lg font-semibold">
               Ask your codebase
             </h3>
@@ -187,40 +185,37 @@ const AskQuestionCard = () => {
 
           <form
             onSubmit={onSubmit}
-            className="group bg-card focus-within:ring-primary/20 hover:border-primary/30 flex items-end gap-2 rounded-xl border px-1 py-[0.8] shadow-sm transition-all focus-within:ring-2"
+            className="group relative rounded-xl border bg-card shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20 hover:border-primary/30"
           >
-            <div className="relative flex-1">
-              {/* Centered animated placeholder */}
-              {!question && (
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={exampleIndex}
-                    variants={flipVariants}
-                    initial="initial"
-                    animate="enter"
-                    exit="exit"
-                    transition={{ duration: 0.45, ease: "easeOut" }}
-                    className="text-muted-foreground/60 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm"
-                  >
-                    {exampleQuestions[exampleIndex]}
-                  </motion.div>
-                </AnimatePresence>
-              )}
+            {!question && (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={exampleIndex}
+                  variants={flipVariants}
+                  initial="initial"
+                  animate="enter"
+                  exit="exit"
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  className="text-muted-foreground/60 pointer-events-none absolute left-4 top-[14px] text-sm truncate max-w-[80%]"
+                >
+                  {exampleQuestions[exampleIndex]}
+                </motion.div>
+              </AnimatePresence>
+            )}
 
-              <Textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onFocus={() => setIsTyping(true)}
-                onBlur={() => setIsTyping(false)}
-                className="max-h-[140px] min-h-11 flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-sm shadow-none focus-visible:ring-0"
-              />
-            </div>
+            <Textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onFocus={() => setIsTyping(true)}
+              onBlur={() => setIsTyping(false)}
+              className="min-h-[48px] w-full resize-none border-0 bg-transparent px-4 py-3 pr-12 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/0"
+            />
 
             <Button
               type="submit"
               disabled={loading || !question.trim()}
               size="icon"
-              className="bg-primary hover:bg-primary/90 mb-0.5 h-10 w-10 shrink-0 rounded-lg transition-all"
+              className="absolute bottom-2 right-2 h-8 w-8 shrink-0 rounded-lg bg-primary transition-all hover:bg-primary/90 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

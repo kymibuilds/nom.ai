@@ -11,12 +11,30 @@ import MeetingCard from "./meeting-card";
 import ArchiveButton from "./archive-button";
 import InviteButton from "./invite-button";
 import TeamMembers from "./team-members";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 function DashboardPage() {
-  const { project } = useProject();
+  const { project, loading, hasProjects } = useProject();
+  const { user } = useUser();
+  const router = useRouter();
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Loading...</div>;
+  }
+
+  if (!loading && !hasProjects) router.push("/create-project");
 
   return (
     <div className="space-y-8">
+    <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+
+        <div>
+            <h2 className="text-lg font-medium">Welcome back, {user?.firstName || 'User'}</h2>
+            <p className="text-muted-foreground text-sm">Track team progress here, you're almost at your goal!</p>
+        </div>
+    </div>
       {/* TOP HEADER SECTION */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Github Link Badge */}

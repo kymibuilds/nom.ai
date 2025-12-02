@@ -17,17 +17,18 @@ import {
 import {
   DollarSign,
   FileQuestionMark,
+  Inbox,
   LayoutDashboard,
   NotebookPen,
   Plus,
   Settings,
   Trash,
+  Users,
 } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import useProject from "@/hooks/use-project";
 import Image from "next/image";
 import SettingsModal from "@/components/modals/settings-modal";
@@ -36,54 +37,48 @@ import { CustomUserButton } from "@/components/user-button";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  {title: "Inbox", url: "/inbox", icon: Inbox},
+  {title: "Team", url: "/team", icon: Users},
   { title: "Q & A", url: "/qa", icon: FileQuestionMark },
   { title: "Meetings", url: "/meetings", icon: NotebookPen },
   { title: "Billing", url: "/billing", icon: DollarSign },
+  
 ];
 
 function AppSidebar() {
   const pathname = usePathname();
-  const { open } = useSidebar();
   const router = useRouter();
   const { projects, projectId, setProjectId } = useProject();
   const [openSettings, setOpenSettings] = useState(false);
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
-      {/* HEADER */}
-      <SidebarHeader className="px-3">
-        <div
-          className="cursor-pointer"
-          role="button"
-          onClick={() => router.push("/dashboard")}
-        >
-          <Image src="/logo/logo.png" alt="logo" width={22} height={22} />
+      <SidebarHeader>
+        <div className="flex items-center justify-center py-2">
+          <div
+            className="cursor-pointer transition-opacity cursor-pointer"
+            role="button"
+            onClick={() => router.push("/dashboard")}
+          >
+            <Image src="/logo/logo.png" alt="logo" width={30} height={30} className="h-8 w-auto" />
+          </div>
         </div>
       </SidebarHeader>
 
-      {/* CONTENT */}
-      <SidebarContent className="mt-2">
-        {/* TOP SECTION */}
+      <SidebarContent>
+        {/* APP ITEMS */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground px-3 text-xs font-medium group-data-[collapsible=icon]:hidden">
-            Application
-          </SidebarGroupLabel>
-
+          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.url;
-
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      data-active={active}
-                    >
+                    <SidebarMenuButton asChild tooltip={item.title} isActive={active}>
                       <Link href={item.url}>
-                        <Icon />
+                        <Icon className="size-5" />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -95,11 +90,8 @@ function AppSidebar() {
         </SidebarGroup>
 
         {/* PROJECTS */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-muted-foreground px-3 text-xs font-medium group-data-[collapsible=icon]:hidden">
-            Your Projects
-          </SidebarGroupLabel>
-
+        <SidebarGroup>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {(projects ?? []).map((project) => {
@@ -109,15 +101,22 @@ function AppSidebar() {
                   <SidebarMenuItem key={project.id}>
                     <SidebarMenuButton
                       tooltip={project.name}
-                      data-active={active}
                       onClick={() => setProjectId(project.id)}
+                      isActive={active}
                     >
+                      {/* OPTION 1: MODERN SOFT BADGE */}
                       <div
                         className={cn(
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-medium",
+                          "flex size-5 shrink-0 items-center justify-center rounded-sm border text-[10px] font-medium uppercase leading-none",
+                          active
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-primary/10 text-primary border-transparent group-hover:bg-primary/20"
                         )}
                       >
-                        {project.name?.[0]?.toUpperCase() ?? "P"}
+                         {/* translate-y helps optical centering for small fonts */}
+                        <span className="translate-y-[1px]">
+                            {project.name?.[0]}
+                        </span>
                       </div>
 
                       <span className="truncate">{project.name}</span>
@@ -126,59 +125,52 @@ function AppSidebar() {
                 );
               })}
 
-              {/* NEW PROJECT BUTTON */}
+              {/* CREATE PROJECT */}
               <SidebarMenuItem>
-                {open ? (
-                  <Button
-                    variant="ghost"
-                    className="text-muted-foreground hover:text-foreground w-full justify-start gap-2 px-2 text-sm"
-                    onClick={() => router.push("/create")}
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>New Project</span>
-                  </Button>
-                ) : (
-                  <SidebarMenuButton
-                    tooltip="New Project"
-                    onClick={() => router.push("/create")}
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span className="sr-only">New Project</span>
-                  </SidebarMenuButton>
-                )}
+                <SidebarMenuButton
+                  tooltip="Create Project"
+                  onClick={() => router.push("/create")}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="size-5" />
+                  <span>New Project</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      {/* FOOTER */}
       <SidebarFooter>
         <SidebarMenu>
+          {/* TRASH */}
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Recycle Bin">
-              <Trash />
+              {/* Enforce size-5 to match the project badge above */}
+              <Trash className="size-5" />
               <span>Recycle Bin</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          
+
+          {/* SETTINGS */}
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Settings"
               onClick={() => setOpenSettings(true)}
             >
-              <Settings />
+              {/* Enforce size-5 to match the project badge above */}
+              <Settings className="size-5" />
               <span>Settings</span>
             </SidebarMenuButton>
             <SettingsModal open={openSettings} onOpenChange={setOpenSettings} />
           </SidebarMenuItem>
-        </SidebarMenu>
-        
-        {/* User Button Section */}
-        <SidebarMenu>
-           <SidebarMenuItem>
-              <CustomUserButton />
-           </SidebarMenuItem>
+
+          {/* USER */}
+          <SidebarMenuItem>
+            <div className="flex items-center justify-center pt-2">
+               <CustomUserButton />
+            </div>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
