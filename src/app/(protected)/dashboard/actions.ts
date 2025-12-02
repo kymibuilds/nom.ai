@@ -49,9 +49,6 @@ You are a code assistant that answers questions about the codebase.
 
 Use ONLY the context provided below.
 
-If the answer cannot be found in the context, say:
-"I don't know."
-
 CONTEXT START
 ${context}
 CONTEXT END

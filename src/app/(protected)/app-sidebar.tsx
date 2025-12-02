@@ -22,6 +22,7 @@ import {
   NotebookPen,
   Plus,
   Settings,
+  Sparkle,
   Trash,
   Users,
 } from "lucide-react";
@@ -37,12 +38,11 @@ import { CustomUserButton } from "@/components/user-button";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  {title: "Inbox", url: "/inbox", icon: Inbox},
-  {title: "Team", url: "/team", icon: Users},
+  { title: "Inbox", url: "/inbox", icon: Inbox },
+  { title: "Team", url: "/team", icon: Users },
   { title: "Q & A", url: "/qa", icon: FileQuestionMark },
   { title: "Meetings", url: "/meetings", icon: NotebookPen },
   { title: "Billing", url: "/billing", icon: DollarSign },
-  
 ];
 
 function AppSidebar() {
@@ -56,11 +56,17 @@ function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center justify-center py-2">
           <div
-            className="cursor-pointer transition-opacity cursor-pointer"
+            className="cursor-pointer transition-opacity"
             role="button"
             onClick={() => router.push("/dashboard")}
           >
-            <Image src="/logo/logo.png" alt="logo" width={30} height={30} className="h-8 w-auto" />
+            <Image
+              src="/logo/logo.png"
+              alt="logo"
+              width={30}
+              height={30}
+              className="h-8 w-auto"
+            />
           </div>
         </div>
       </SidebarHeader>
@@ -76,7 +82,11 @@ function AppSidebar() {
                 const active = pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title} isActive={active}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.title}
+                      isActive={active}
+                    >
                       <Link href={item.url}>
                         <Icon className="size-5" />
                         <span>{item.title}</span>
@@ -104,21 +114,7 @@ function AppSidebar() {
                       onClick={() => setProjectId(project.id)}
                       isActive={active}
                     >
-                      {/* OPTION 1: MODERN SOFT BADGE */}
-                      <div
-                        className={cn(
-                          "flex size-5 shrink-0 items-center justify-center rounded-sm border text-[10px] font-medium uppercase leading-none",
-                          active
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-primary/10 text-primary border-transparent group-hover:bg-primary/20"
-                        )}
-                      >
-                         {/* translate-y helps optical centering for small fonts */}
-                        <span className="translate-y-[1px]">
-                            {project.name?.[0]}
-                        </span>
-                      </div>
-
+                      <Sparkle className="size-5" />
                       <span className="truncate">{project.name}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -168,7 +164,7 @@ function AppSidebar() {
           {/* USER */}
           <SidebarMenuItem>
             <div className="flex items-center justify-center pt-2">
-               <CustomUserButton />
+              <CustomUserButton />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -269,4 +269,30 @@ export const projectRouter = createTRPCRouter({
         userCredits: userCredits?.credits ?? 0,
       };
     }),
+    getDashboardStats: protectedProcedure
+  .input(z.object({ projectId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const { projectId } = input;
+
+    const [teamCount, commitCount, meetingCount, issueCount, lastCommit] = await Promise.all([
+      ctx.db.userToProject.count({ where: { projectId } }),
+      ctx.db.commit.count({ where: { projectId } }),
+      ctx.db.meeting.count({ where: { projectId } }),
+      ctx.db.issue.count({
+        where: { meeting: { projectId } },
+      }),
+      ctx.db.commit.findFirst({
+        where: { projectId },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+    return {
+      teamCount,
+      commitCount,
+      meetingCount,
+      issueCount,
+      lastActivity: lastCommit?.createdAt ?? null,
+    };
+  })
 });

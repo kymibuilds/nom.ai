@@ -11,7 +11,7 @@ function TeamMembers() {
   return <div className="flex items-center gap-2">
     {
         members?.map(member =>(
-            <Image key={member.id} src={member.user.imageUrl ?? "/defaultAvatar.png"} alt="user url" width={16} height={16} className="rounded-full"/>
+            <Image key={member.id} src={member.user.imageUrl ?? "/defaultAvatar.png"} alt="user url" width={28} height={28} className="rounded-full"/>
         ))
     }
   </div>;

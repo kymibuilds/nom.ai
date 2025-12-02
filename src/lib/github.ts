@@ -47,8 +47,6 @@ export const getCommitHashes = async (
   const { owner, repo } = parseGitHubUrl(githubUrl);
   const client = getClient(githubToken);
 
-  console.log("Fetching commits for:", owner, repo);
-
   const repoInfo = await client.rest.repos.get({ owner, repo });
   const branch = repoInfo.data.default_branch;
 
@@ -74,9 +72,6 @@ export const getCommitHashes = async (
   }));
 };
 
-/* --------------------------------------------
-   SUMMARIZE SINGLE COMMIT
--------------------------------------------- */
 async function summariseCommit(
   githubUrl: string,
   commitHash: string,
@@ -106,9 +101,6 @@ async function summariseCommit(
   }
 }
 
-/* --------------------------------------------
-   WRITE NEW COMMITS ONLY
--------------------------------------------- */
 export const pollCommits = async (
   projectId: string,
   githubToken?: string
@@ -138,9 +130,6 @@ export const pollCommits = async (
   });
 };
 
-/* --------------------------------------------
-   HELPERS
--------------------------------------------- */
 async function fetchProjectGithubUrl(projectId: string) {
   const project = await db.project.findUnique({
     where: { id: projectId },
