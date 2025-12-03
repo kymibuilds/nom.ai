@@ -19,10 +19,13 @@ export async function assertMember(userId: string, projectId: string) {
   const membership = await getMembership(userId, projectId);
 
   if (!membership) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Not a project member" });
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Not a project member",
+    });
   }
 
-  return membership; // return role if needed
+  return membership;
 }
 
 /**
@@ -32,8 +35,12 @@ export async function assertMember(userId: string, projectId: string) {
 export async function assertAdmin(userId: string, projectId: string) {
   const membership = await getMembership(userId, projectId);
 
-  if (!membership || membership.role !== "ADMIN") {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Admin only" });
+  // ESLint-friendly optional chaining version
+  if (membership?.role !== "ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin only",
+    });
   }
 
   return membership;

@@ -4,7 +4,6 @@ import React from "react";
 import useProject from "@/hooks/use-project";
 import { useRouter } from "next/navigation";
 
-// Components
 import CommitLog from "./_components/commit-log";
 import AskQuestionCard from "./ask-question-card";
 import { DashboardMeetingCard } from "./_components/meeting-card";
@@ -13,10 +12,11 @@ import InviteButton from "./_components/invite-button";
 import TeamMembers from "./_components/team-members";
 import DashboardHeader from "./_components/dashboard-header";
 
-function DashboardPage() {
+export default function DashboardPage() {
   const { loading, hasProjects } = useProject();
   const router = useRouter();
 
+  // Never render dashboard until hydrated + loaded → prevents flicker
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -27,7 +27,8 @@ function DashboardPage() {
     );
   }
 
-  if (!loading && !hasProjects) {
+  // After hydration: safe redirect if user truly has no projects
+  if (!hasProjects) {
     router.push("/create");
     return null;
   }
@@ -53,11 +54,11 @@ function DashboardPage() {
       </div>
 
       <div className="mt-8 space-y-4">
-        <h2 className="text-lg font-semibold tracking-tight">Recent Activity</h2>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Recent Activity
+        </h2>
         <CommitLog />
       </div>
     </div>
   );
 }
-
-export default DashboardPage;

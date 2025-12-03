@@ -15,10 +15,8 @@ export const teamRouter = createTRPCRouter({
       const { projectId, ttlHours } = input;
       const userId = ctx.user.userId;
 
-      // Ensure admin
       await assertAdmin(userId, projectId);
 
-      // Delete previous active codes
       await ctx.db.projectJoinCode.deleteMany({
         where: {
           projectId,
@@ -27,10 +25,8 @@ export const teamRouter = createTRPCRouter({
         },
       });
 
-      // Compute expiration timestamp
       const expiresAt = new Date(Date.now() + ttlHours * 3600 * 1000);
 
-      // Try creating a unique code (handles P2002)
       for (let i = 0; i < 5; i++) {
         const code = generateJoinCode();
 
@@ -46,8 +42,15 @@ export const teamRouter = createTRPCRouter({
               expiresAt: true,
             },
           });
-        } catch (err: any) {
-          if (err.code === "P2002") continue; // Retry collision
+        } catch (err: unknown) {
+          // Narrow unknown → possible Prisma error
+          const e = err as { code?: string };
+
+          if (e.code === "P2002") {
+            // retry if code collision
+            continue;
+          }
+
           throw err;
         }
       }
@@ -65,7 +68,6 @@ export const teamRouter = createTRPCRouter({
       const userId = ctx.user.userId;
       const code = input.code.trim();
 
-      // Find the join code entry
       const codeRow = await ctx.db.projectJoinCode.findUnique({
         where: { code },
       });
@@ -76,14 +78,11 @@ export const teamRouter = createTRPCRouter({
 
       const projectId = codeRow.projectId;
 
-      // Add user to project (upsert ensures no duplicates)
       await ctx.db.userToProject.upsert({
         where: {
           userId_projectId: { userId, projectId },
         },
-        update: {
-          updatedAt: new Date(),
-        },
+        update: { updatedAt: new Date() },
         create: {
           userId,
           projectId,
@@ -91,7 +90,6 @@ export const teamRouter = createTRPCRouter({
         },
       });
 
-      // Mark code used (single-use behavior)
       await ctx.db.projectJoinCode.update({
         where: { id: codeRow.id },
         data: { usedAt: new Date() },

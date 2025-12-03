@@ -58,7 +58,7 @@ export default function InviteButton() {
   const handleCopy = () => {
     console.log("[InviteButton] handleCopy() clicked. code =", code);
     if (!code) return;
-    navigator.clipboard.writeText(code);
+    void navigator.clipboard.writeText(code);
     toast.success("Join code copied");
   };
 

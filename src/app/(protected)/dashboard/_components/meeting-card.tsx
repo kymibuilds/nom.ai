@@ -29,10 +29,10 @@ function useMeetingUpload() {
   const { project } = useProject();
   const router = useRouter();
 
-  // Progress callback for the upload
-  const handleProgressUpdate = (progress: number) => {
-    setProgress(progress);
-  };
+//   Progress callback for the upload
+//   const handleProgressUpdate = (progress: number) => {
+//     setProgress(progress);
+//   };
 
   const processMeeting = useMutation({
     mutationFn: async (data: {
