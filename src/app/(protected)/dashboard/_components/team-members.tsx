@@ -19,7 +19,7 @@ function TeamMembers() {
       {visible.map((member) => (
         <Image
           key={member.id}
-          src={member.user.imageUrl ?? "/defaultAvatar.png"}
+          src={member.user.imageUrl ?? "/default-avatar.png"}
           alt="user avatar"
           width={28}
           height={28}

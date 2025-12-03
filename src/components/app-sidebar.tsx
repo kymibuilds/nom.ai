@@ -129,6 +129,14 @@ function AppSidebar() {
                   <Plus className="size-5" />
                   <span>New Project</span>
                 </SidebarMenuButton>
+                <SidebarMenuButton
+                  tooltip="Join Project"
+                  onClick={() => router.push("/join")}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="size-5" />
+                  <span>Join</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

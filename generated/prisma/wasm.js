@@ -148,7 +148,8 @@ exports.Prisma.UserToProjectScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  projectId: 'projectId'
+  projectId: 'projectId',
+  role: 'role'
 };
 
 exports.Prisma.SourceCodeEmbeddingScalarFieldEnum = {
@@ -215,6 +216,16 @@ exports.Prisma.StripeTransactionScalarFieldEnum = {
   credits: 'credits'
 };
 
+exports.Prisma.ProjectJoinCodeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  code: 'code',
+  projectId: 'projectId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -240,6 +251,11 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.MemberRole = exports.$Enums.MemberRole = {
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER'
+};
+
 exports.MeetingStatus = exports.$Enums.MeetingStatus = {
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED'
@@ -255,7 +271,8 @@ exports.Prisma.ModelName = {
   Question: 'Question',
   Meeting: 'Meeting',
   Issue: 'Issue',
-  StripeTransaction: 'StripeTransaction'
+  StripeTransaction: 'StripeTransaction',
+  ProjectJoinCode: 'ProjectJoinCode'
 };
 
 /**
