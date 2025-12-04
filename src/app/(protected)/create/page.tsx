@@ -8,6 +8,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type FormInput = {
   repoUrl: string;
@@ -25,6 +26,7 @@ function CreatePage() {
   const createProject = api.project.createProject.useMutation();
   const checkCredits = api.project.checkCredits.useMutation();
   const refetch = useRefetch();
+  const router = useRouter();
 
   const [calculating, setCalculating] = useState(false);
   const [fileCount, setFileCount] = useState<number | null>(null);
@@ -94,6 +96,7 @@ function CreatePage() {
             setFileCount(null);
             setUserCredits(null);
           });
+          router.push("/dashboard");
         },
         onError: () => {
           toast.error("Failed to create project");
