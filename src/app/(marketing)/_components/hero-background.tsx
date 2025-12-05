@@ -31,12 +31,12 @@ export default function HeroBackground() {
         <ShaderGradient
           /* Smooth, subtle motion */
           animate="on"
-          type="plane"
+          type="waterPlane"
           shader="flow"
-          uSpeed={0.05} // slower
-          uStrength={1.2} // softer
-          uFrequency={0.06} // smoother waves
-          uAmplitude={0.9} // subtle displacement
+          uSpeed={0.1} // slower
+          uStrength={2.4} // softer
+          uFrequency={0.4} // smoother waves
+          uAmplitude={2} // subtle displacement
           uDensity={0.7} // less chaotic
           /* Darker + muted blue palette */
           color1="#5f8bb8" // soft steel blue
