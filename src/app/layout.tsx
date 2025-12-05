@@ -7,7 +7,6 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "nom",
@@ -31,7 +30,6 @@ export default function RootLayout({
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Toaster richColors />
           </ThemeProvider>
-          <Analytics />
         </body>
       </html>
     </ClerkProvider>
