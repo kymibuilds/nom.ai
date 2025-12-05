@@ -6,21 +6,24 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-    images: {
-        domains: ["img.clerk.com"],
+  images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
     ],
   },
   eslint: {
-    ignoreDuringBuilds: false
+    ignoreDuringBuilds: false,
   },
   typescript: {
     ignoreBuildErrors: false,
-  }
+  },
 };
 
 export default config;
