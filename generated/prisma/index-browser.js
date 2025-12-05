@@ -226,6 +226,13 @@ exports.Prisma.ProjectJoinCodeScalarFieldEnum = {
   projectId: 'projectId'
 };
 
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  content: 'content',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -272,7 +279,8 @@ exports.Prisma.ModelName = {
   Meeting: 'Meeting',
   Issue: 'Issue',
   StripeTransaction: 'StripeTransaction',
-  ProjectJoinCode: 'ProjectJoinCode'
+  ProjectJoinCode: 'ProjectJoinCode',
+  Message: 'Message'
 };
 
 /**

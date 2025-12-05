@@ -16,7 +16,7 @@ import {
 import {
   DollarSign,
   FileQuestionMark,
-  Inbox,
+  MessageCircle,
   LayoutDashboard,
   NotebookPen,
   Plus,
@@ -36,7 +36,7 @@ import { CustomUserButton } from "@/components/user-button";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Inbox", url: "/inbox", icon: Inbox },
+  { title: "Chat", url: "/chat", icon: MessageCircle },
   { title: "Team", url: "/team", icon: Users },
   { title: "Q & A", url: "/qa", icon: FileQuestionMark },
   { title: "Meetings", url: "/meetings", icon: NotebookPen },
