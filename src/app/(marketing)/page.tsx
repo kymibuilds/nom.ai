@@ -21,6 +21,7 @@ import CTASection from "./_components/cta-section";
 import { WordRotate } from "@/components/magicui/word-rotate";
 import UseCasesSection from "./_components/usecase-section";
 import FAQSection from "./_components/faq-secion";
+import Footer from "./_components/footer";
 
 const serifFont = Instrument_Serif({
   weight: ["400"],
@@ -50,7 +51,6 @@ const item: Variants = {
 export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden text-white selection:bg-blue-500/30">
-      
       {/* Background Layer */}
       <div className="fixed inset-0 -z-10 h-screen w-full">
         <HeroBackground />
@@ -59,7 +59,6 @@ export default function LandingPage() {
 
       {/* --- HERO SECTION --- */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-32 text-center md:pt-40">
-        
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -71,7 +70,7 @@ export default function LandingPage() {
             <span className="absolute h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
             <span className="relative h-2 w-2 rounded-full bg-green-500"></span>
           </span>
-          v2.0 is live
+          coming soon
         </motion.div>
 
         {/* Hero Text */}
@@ -82,12 +81,12 @@ export default function LandingPage() {
           >
             The agent that connects your codebase, <br />
             {/* FIX: Used md:translate-x-12 to prevent mobile breakage, and [2px] for valid tailwind */}
-            <span className="text-white/80 inline-flex items-center justify-center gap-x-2 md:translate-x-12">
+            <span className="inline-flex items-center justify-center gap-x-2 text-white/80 md:translate-x-12">
               conversations, and{" "}
-              <span className="inline-block min-w-[5em] text-left translate-y-[2px]">
-                <WordRotate 
+              <span className="inline-block min-w-[5em] translate-y-[2px] text-left">
+                <WordRotate
                   className="font-medium text-white"
-                  words={["tasks", "meetings", "workflows"]} 
+                  words={["tasks", "meetings", "workflows"]}
                 />
               </span>
             </span>
@@ -175,9 +174,7 @@ export default function LandingPage() {
       <CTASection />
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-black py-10 text-center text-sm text-neutral-500">
-        Built with love
-      </footer>
+      <Footer />
     </div>
   );
 }
