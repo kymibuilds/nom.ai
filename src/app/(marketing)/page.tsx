@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Instrument_Serif } from "next/font/google";
 import { ArrowRight } from "lucide-react";
 import HeroBackground from "./_components/hero-background";
+import UseCasesSection from "@/app/(marketing)/_components/UseCasesSection";
+
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-
-// ⭐ NEW IMPORT — replaces the Features section
-import UseCasesSection from "@/app/(marketing)/_components/UseCasesSection";
+import IntegrationsSection from "./_components/integrations-section";
 
 const serifFont = Instrument_Serif({
   weight: ["400"],
@@ -141,6 +141,7 @@ export default function LandingPage() {
 
       {/* ⭐ REPLACED FEATURES SECTION WITH USE CASES SECTION ⭐ */}
       <UseCasesSection />
+      <IntegrationsSection />
 
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-black py-10 text-center text-sm text-white/40">
