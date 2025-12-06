@@ -17,7 +17,6 @@ import ConceptSection from "./_components/concept-section";
 import IntegrationsSection from "./_components/integrations-section";
 import PricingSection from "./_components/pricing-section";
 import CTASection from "./_components/cta-section";
-
 import { WordRotate } from "@/components/magicui/word-rotate";
 import UseCasesSection from "./_components/usecase-section";
 import FAQSection from "./_components/faq-secion";
@@ -80,10 +79,9 @@ export default function LandingPage() {
             className={`max-w-4xl text-5xl leading-tight font-medium tracking-tight md:text-7xl ${serifFont.className}`}
           >
             The agent that connects your codebase, <br />
-            {/* FIX: Used md:translate-x-12 to prevent mobile breakage, and [2px] for valid tailwind */}
             <span className="inline-flex items-center justify-center gap-x-2 text-white/80 md:translate-x-12">
               conversations, and{" "}
-              <span className="inline-block min-w-[5em] translate-y-[2px] text-left">
+              <span className="inline-block min-w-[5em] translate-y-[0px] text-left">
                 <WordRotate
                   className="font-medium text-white"
                   words={["tasks", "meetings", "workflows"]}
@@ -92,9 +90,10 @@ export default function LandingPage() {
             </span>
           </motion.h1>
 
+          {/* FIXED: centered paragraph using mx-auto */}
           <motion.p
             variants={item}
-            className="mt-8 max-w-2xl text-lg font-light text-neutral-300 md:text-xl"
+            className="mx-auto mt-8 max-w-2xl text-lg font-light text-neutral-300 md:text-xl"
           >
             Stop digging through folders. Nom.ai indexes your repo, listens to
             your meetings, and helps you deploy features without the mental
@@ -149,7 +148,6 @@ export default function LandingPage() {
               className="h-auto w-full object-cover opacity-100"
             />
 
-            {/* Smoother Gradient Overlay */}
             <div className="absolute bottom-0 left-0 h-2/3 w-full bg-gradient-to-t from-black via-black/50 to-transparent"></div>
           </div>
         </motion.div>
