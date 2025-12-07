@@ -6,7 +6,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     <html lang="en">
       <body>
         <Navbar />
-        <div className="">
+        <div>
           {children}
         </div>
       </body>
