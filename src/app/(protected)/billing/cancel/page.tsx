@@ -22,7 +22,7 @@ function CancelContent() {
 
       {sessionId && (
         <div className="rounded-md border p-4">
-          <p className="text-sm">Stripe Session ID:</p>
+          <p className="text-sm">Stripe Session id:</p>
           <p className="font-mono text-sm">{sessionId}</p>
         </div>
       )}

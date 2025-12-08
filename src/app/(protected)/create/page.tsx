@@ -90,6 +90,7 @@ function CreatePage() {
       {
         onSuccess: () => {
           toast.success("Project created successfully");
+          router.push("/dashboard");
 
           void refetch().then(() => {
             reset();

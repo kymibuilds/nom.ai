@@ -36,7 +36,7 @@ function SuccessContent() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold">Payment Successful</h1>
+      <h1 className="text-2xl font-semibold">Payment Succeeded</h1>
       <div className="h-3"></div>
 
       <p className="text-gray-700">Your purchase was completed successfully.</p>
